@@ -7,9 +7,18 @@ La idea es construir un sistema donde varios nodos reportan su estado a un servi
 ## Estado
 
 - [x] Investigación del material del curso
-- [ ] Fase 1: diseño y arquitectura
+- [x] Fase 1: diseño y arquitectura
 - [ ] Fase 2: comunicación básica
 - [ ] Fase 3: concurrencia, robustez y pruebas
+
+## Entrega 1
+
+- [Propuesta en PDF](docs/entrega1/Entrega-1.pdf)
+- [Propuesta editable](docs/entrega1/propuesta.md)
+- [Especificación del protocolo MCD/1.0](docs/protocolo/MCD-1.0.md)
+- [Diagramas y exportaciones](docs/diagramas/README.md)
+- [Matriz de trazabilidad](docs/entrega1/trazabilidad.md)
+- [Guion de exposición](docs/entrega1/exposicion.md)
 
 ## Autor
 
