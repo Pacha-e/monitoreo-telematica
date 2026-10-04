@@ -1,0 +1,26 @@
+# Compilación y binarios
+servidor/bin/
+*.o
+*.out
+
+# Ejecución
+*.log
+config.ini
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Editores y sistema
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Credenciales e infraestructura local
+*.key
+*.pem
+*.crt
+secrets/
