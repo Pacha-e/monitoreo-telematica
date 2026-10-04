@@ -1,0 +1,27 @@
+sequenceDiagram
+    autonumber
+    participant N as nodo-01 (Python)
+    participant D as ns1 (BIND9)
+    participant S as servidor (C)
+    participant L as ldap (OpenLDAP)
+
+    N->>D: consulta A de servidor.monitoreo.lab
+    D-->>N: dirección del servidor
+    N->>S: connect TCP al puerto P (saludo de tres vías)
+    S->>S: accept, crea hilo, inicia T_ident
+    N->>S: MCD/1.0|REGISTER|req=1|node_id=nodo-01|secret=clave-de-ejemplo|kind=SENSOR|period=5
+    S->>S: log de la petición con IP y puerto, secret como ***
+    S->>D: consulta A de ldap.monitoreo.lab
+    D-->>S: dirección del LDAP
+    S->>L: bind simple cn=nodo-01,ou=devices,dc=monitoreo,dc=lab
+    alt credenciales válidas
+        L-->>S: bind exitoso
+        S->>S: crea o reutiliza la entrada, session aleatoria, last_seq en 0, estado ACTIVO
+        S-->>N: MCD/1.0|REGISTER_OK|req=1|node_id=nodo-01|session=4f9c2a7d1e0b8c63|period=5
+        Note over N: guarda session, seq en 0, empieza a enviar TELEMETRY cada 5 s
+    else credenciales inválidas
+        L-->>S: invalidCredentials
+        S-->>N: MCD/1.0|ERROR|req=1|code=401|reason=CREDENCIALES
+        S->>S: cierra la conexión
+        Note over N: ESPERA_REINTENTO con backoff, el proceso sigue vivo
+    end

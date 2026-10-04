@@ -1,0 +1,44 @@
+sequenceDiagram
+    autonumber
+    actor U as Operador
+    participant C as cliente (Tkinter)
+    participant D as ns1 (BIND9)
+    participant S as servidor (C)
+    participant L as ldap (OpenLDAP)
+
+    U->>C: escribe usuario y clave, pulsa Ingresar
+    C->>D: consulta A de servidor.monitoreo.lab
+    D-->>C: dirección del servidor
+    C->>S: connect TCP al puerto P
+    C->>S: MCD/1.0|LOGIN|req=1|user=operador1|password=clave-de-ejemplo
+    S->>L: bind simple uid=operador1,ou=people,dc=monitoreo,dc=lab
+    L-->>S: bind exitoso
+    S->>L: busca groupOfNames en ou=groups con member igual al DN del usuario
+    L-->>S: cn=operadores
+    S-->>C: MCD/1.0|LOGIN_OK|req=1|user=operador1|role=operador
+    C->>U: muestra perfil operador
+
+    loop cada 5 s
+        C->>S: MCD/1.0|LIST|req=2
+        S->>S: copia la tabla con el candado tomado, lo suelta y luego envía
+        S-->>C: MCD/1.0|RESPONSE|req=2|op=LIST|items=2
+        S-->>C: MCD/1.0|ITEM|req=2|idx=1|node_id=nodo-01|kind=SENSOR|state=ACTIVO|last_seen=1791126151
+        S-->>C: MCD/1.0|ITEM|req=2|idx=2|node_id=nodo-02|kind=RED|state=SIN_REPORTE|last_seen=1791126121
+    end
+
+    U->>C: abre el historial de nodo-01
+    C->>S: MCD/1.0|HISTORY|req=3|node_id=nodo-01|n=5
+    S-->>C: MCD/1.0|RESPONSE|req=3|op=HISTORY|items=5
+    S-->>C: MCD/1.0|ITEM|req=3|idx=1|node_id=nodo-01|seq=45|ts=1791126151|cpu=39.0|temp=50.2|bat=90|opstate=OK
+    Note over S,C: siguen ITEM idx=2 a idx=5, del más reciente al más antiguo
+    C->>U: tabla con 5 muestras
+
+    U->>C: abre la vista de eventos
+    C->>S: MCD/1.0|EVENTS|req=4|n=10
+    S-->>C: MCD/1.0|ERROR|req=4|code=403|reason=ROL
+    C->>U: su perfil no permite ver eventos
+
+    U->>C: cierra la ventana
+    C->>S: MCD/1.0|BYE|req=5
+    S-->>C: MCD/1.0|BYE|req=5
+    S->>S: cierra la conexión y termina el hilo

@@ -1,0 +1,24 @@
+sequenceDiagram
+    autonumber
+    participant N as nodo-01
+    participant S as servidor (hilo UDP)
+    participant W as servidor (watchdog)
+
+    Note over N,S: UDP sin ACK. Estado en el servidor: last_seq=40, lost=0, dups=0, ooo=0
+    N->>S: MCD/1.0|TELEMETRY|node_id=nodo-01|session=4f9c2a7d1e0b8c63|seq=41|ts=1791126131|cpu=37.5|temp=48.1|bat=91|opstate=OK|uptime=3731
+    S->>S: seq igual a last_seq más 1, acepta, last_seq=41
+    N-xS: TELEMETRY seq=42 (se pierde en la red)
+    N->>S: TELEMETRY seq=43
+    S->>S: hueco de 1, lost=1, acepta, last_seq=43
+    N->>S: TELEMETRY seq=44 (se retrasa en la red)
+    N->>S: TELEMETRY seq=45
+    S->>S: llega antes que 44, lost=2, acepta, last_seq=45
+    S->>S: llega seq=44 atrasado, menor que last_seq, descarta, ooo=1
+    N->>S: TELEMETRY seq=45 repetido
+    S->>S: igual a last_seq, descarta, dups=1
+    Note over S: lost es un estimado por exceso, 44 quedó contado como perdido y como atrasado
+    Note over N,S: el nodo deja de reportar
+    W->>W: cada 1 s compara ahora menos last_seen con 3 periodos de 5 s
+    W->>W: pasan más de 15 s, nodo-01 a SIN_REPORTE, evento interno CONECTIVIDAD SIN_REPORTE
+    N->>S: TELEMETRY seq=46
+    S->>S: acepta, nodo-01 a ACTIVO, evento interno CONECTIVIDAD RECUPERADO

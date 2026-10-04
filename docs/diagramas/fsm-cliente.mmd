@@ -1,0 +1,23 @@
+stateDiagram-v2
+    [*] --> INICIO
+    INICIO --> CREDENCIALES : abre la aplicación / muestra formulario de ingreso
+    CREDENCIALES --> RESOLVIENDO : usuario pulsa Ingresar / guarda credenciales en memoria
+    RESOLVIENDO --> CONECTANDO : getaddrinfo responde
+    RESOLVIENDO --> ESPERA_REINTENTO : falla DNS / muestra el error
+    CONECTANDO --> AUTENTICANDO : connect exitoso / envía LOGIN, inicia T_resp
+    CONECTANDO --> ESPERA_REINTENTO : connect falla / muestra el error
+    AUTENTICANDO --> LISTO : LOGIN_OK / muestra perfil y habilita vistas
+    AUTENTICANDO --> CREDENCIALES : ERROR 401 o 403 / borra credenciales, cierra TCP
+    AUTENTICANDO --> ESPERA_REINTENTO : ERROR 503, vence T_resp o cae TCP
+    LISTO --> ESPERANDO_RESPUESTA : vence refresco de 5 s o el usuario pide una vista / envía consulta
+    ESPERANDO_RESPUESTA --> LISTO : RESPONSE y todos sus ITEM / actualiza la ventana
+    ESPERANDO_RESPUESTA --> LISTO : ERROR 403, 404 o 422 / muestra el mensaje
+    ESPERANDO_RESPUESTA --> ESPERA_REINTENTO : vence T_resp, cae TCP, ERROR 408 o 500, respuesta inválida
+    ESPERA_REINTENTO --> RESOLVIENDO : vence espera / duplica espera hasta 30 s
+    LISTO --> FIN : el usuario cierra la ventana / envía BYE
+    FIN --> [*]
+
+    note right of ESPERA_REINTENTO
+        Al reconectar repite LOGIN con las
+        credenciales que tiene en memoria.
+    end note

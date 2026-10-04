@@ -1,0 +1,33 @@
+stateDiagram-v2
+    [*] --> INICIO
+    INICIO --> RESOLVIENDO : arranque, lee configuración
+    RESOLVIENDO --> CONECTANDO : getaddrinfo responde
+    RESOLVIENDO --> ESPERA_REINTENTO : falla DNS, registra
+    CONECTANDO --> REGISTRANDO : connect exitoso / envía REGISTER, inicia T_resp
+    CONECTANDO --> ESPERA_REINTENTO : connect falla
+    REGISTRANDO --> OPERANDO : REGISTER_OK / guarda session, seq en 0, backoff en 1 s
+    REGISTRANDO --> ESPERA_REINTENTO : ERROR, vence T_resp o cae TCP
+    OPERANDO --> OPERANDO : vence period / seq más 1, TELEMETRY por UDP
+    OPERANDO --> ESPERANDO_ACK : hay evento pendiente / envía EVENT, inicia T_ack
+    ESPERANDO_ACK --> ESPERANDO_ACK : vence period / TELEMETRY por UDP
+    ESPERANDO_ACK --> OPERANDO : ACK con msg_id esperado / saca evento de la cola
+    ESPERANDO_ACK --> OPERANDO : ERROR 400, 403 o 422 / descarta evento
+    ESPERANDO_ACK --> ESPERA_REINTENTO : vence T_ack, cae TCP u otro ERROR
+    OPERANDO --> RESOLVIENDO : ERROR 404 por UDP / cierra TCP
+    ESPERANDO_ACK --> RESOLVIENDO : ERROR 404 por UDP / cierra TCP
+    OPERANDO --> ESPERA_REINTENTO : cae TCP
+    ESPERA_REINTENTO --> RESOLVIENDO : vence espera / duplica espera hasta 30 s
+    OPERANDO --> CERRANDO : orden de apagado / envía BYE
+    CERRANDO --> FIN : BYE del servidor o vence T_resp
+    FIN --> [*]
+
+    note right of ESPERA_REINTENTO
+        Backoff 1, 2, 4, 8, 16, 30 s.
+        El proceso nunca termina por fallas
+        de DNS, de red o del servidor.
+    end note
+    note left of ESPERANDO_ACK
+        El evento sigue en la cola hasta
+        recibir ACK. Se reenvía con el
+        mismo msg_id tras reconectar.
+    end note

@@ -1,0 +1,23 @@
+flowchart LR
+    subgraph LAB["Red de laboratorio VirtualBox, zona DNS monitoreo.lab"]
+        direction LR
+        subgraph INFRA["Servicios de apoyo"]
+            NS1["ns1.monitoreo.lab<br/>BIND9<br/>53 UDP y TCP"]
+            LDAP["ldap.monitoreo.lab<br/>OpenLDAP slapd<br/>389 TCP<br/>dc=monitoreo,dc=lab"]
+        end
+        SRV["servidor.monitoreo.lab<br/>Servidor central en C<br/>sockets Berkeley y pthread<br/>puerto P en TCP y en UDP<br/>./servidor P archivoDeLogs"]
+        N1["nodo-01<br/>Python<br/>simula CPU, temperatura,<br/>batería y estado"]
+        N2["nodo-02<br/>Python"]
+        ADM["Cliente de administración<br/>Python y Tkinter"]
+    end
+
+    N1 -->|"TCP P: REGISTER, EVENT, BYE"| SRV
+    N1 -.->|"UDP P: TELEMETRY"| SRV
+    N2 -->|"TCP P: REGISTER, EVENT, BYE"| SRV
+    N2 -.->|"UDP P: TELEMETRY"| SRV
+    ADM -->|"TCP P: LOGIN, LIST, STATUS, HISTORY, EVENTS, BYE"| SRV
+    SRV -->|"LDAP bind y búsqueda de grupos"| LDAP
+    N1 -.->|"DNS: servidor.monitoreo.lab"| NS1
+    N2 -.->|"DNS: servidor.monitoreo.lab"| NS1
+    ADM -.->|"DNS: servidor.monitoreo.lab"| NS1
+    SRV -.->|"DNS: ldap.monitoreo.lab"| NS1

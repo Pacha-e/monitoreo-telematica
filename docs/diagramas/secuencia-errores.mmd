@@ -1,0 +1,30 @@
+sequenceDiagram
+    autonumber
+    participant C as cliente de prueba (nc)
+    participant S as servidor
+
+    C->>S: connect TCP al puerto P
+    C->>S: MCD/1.0|LIST|req=1
+    S-->>C: MCD/1.0|ERROR|req=1|code=401|reason=SIN_SESION
+    C->>S: MCD/1.0 LIST req=2
+    S-->>C: MCD/1.0|ERROR|req=0|code=400|reason=FORMATO
+    C->>S: MCD/1.0|LOGIN|req=3|user=admin1|password=clave-de-ejemplo
+    S-->>C: MCD/1.0|LOGIN_OK|req=3|user=admin1|role=admin
+    C->>S: MCD/1.0|HISTORY|req=4|node_id=nodo-01|n=50
+    S-->>C: MCD/1.0|ERROR|req=4|code=422|reason=VALOR|field=n
+    C->>S: MCD/1.0|STATUS|req=5|node_id=nodo-99
+    S-->>C: MCD/1.0|ERROR|req=5|code=404|reason=NODO
+    C->>S: MCD/1.0|TELEMETRY|node_id=nodo-01|session=4f9c2a7d1e0b8c63|seq=9|ts=1791126131|cpu=1.0|temp=30.0|bat=NA|opstate=OK|uptime=10
+    S-->>C: MCD/1.0|ERROR|req=0|code=409|reason=TRANSPORTE
+    C->>S: MCD/1.0|LOGIN|req=6|user=admin1|password=clave-de-ejemplo
+    S-->>C: MCD/1.0|ERROR|req=6|code=409|reason=ESTADO
+    Note over C,S: todos estos errores mantienen la conexión abierta
+    C->>S: 600 bytes sin salto de línea
+    S-->>C: MCD/1.0|ERROR|req=0|code=413|reason=TAMANO
+    S->>S: cierra la conexión, el proceso sigue atendiendo a los demás
+
+    Note over C,S: otra conexión que nunca se identifica
+    C->>S: connect TCP al puerto P
+    Note over C,S: pasan 60 s sin LOGIN ni REGISTER
+    S-->>C: MCD/1.0|ERROR|req=0|code=408|reason=TIEMPO
+    S->>S: cierra la conexión

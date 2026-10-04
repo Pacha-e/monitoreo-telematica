@@ -1,0 +1,27 @@
+stateDiagram-v2
+    [*] --> CONECTADA : accept / inicia T_ident, fallos en 0
+    [*] --> CERRADA : accept con 64 conexiones abiertas / ERROR 503 CAPACIDAD
+    CONECTADA --> VALIDANDO : LOGIN bien formado / consulta LDAP
+    CONECTADA --> CONEXION_DE_NODO : REGISTER / sigue la máquina del nodo en el servidor
+    CONECTADA --> CONECTADA : consulta o EVENT / ERROR 401 SIN_SESION
+    CONECTADA --> CONECTADA : ERROR 400 o 422, menos de 5 seguidos
+    CONECTADA --> CERRADA : vence T_ident / ERROR 408 TIEMPO
+    CONECTADA --> CERRADA : BYE / BYE
+    VALIDANDO --> AUTENTICADA : LDAP acepta y hay grupo / LOGIN_OK, inicia T_inactividad
+    VALIDANDO --> CONECTADA : 401 CREDENCIALES o 403 ROL, fallos menor que 3 / reinicia T_ident
+    VALIDANDO --> CERRADA : tercer fallo / ERROR y cierre
+    VALIDANDO --> CONECTADA : LDAP o DNS no disponibles / ERROR 503, no cuenta como fallo
+    AUTENTICADA --> AUTENTICADA : consulta permitida / RESPONSE e ITEM, reinicia T_inactividad
+    AUTENTICADA --> AUTENTICADA : consulta no permitida / ERROR 403 ROL
+    AUTENTICADA --> AUTENTICADA : LOGIN o REGISTER / ERROR 409 ESTADO
+    AUTENTICADA --> CERRADA : BYE / BYE
+    AUTENTICADA --> CERRADA : vence T_inactividad / ERROR 408 TIEMPO
+    AUTENTICADA --> CERRADA : recv 0, error de socket, 413 o 5 errores de formato seguidos
+    CONECTADA --> CERRADA : recv 0, error de socket, 413 o 5 errores de formato seguidos
+    CERRADA --> [*]
+    CONEXION_DE_NODO --> [*]
+
+    note right of AUTENTICADA
+        operador: LIST, STATUS, HISTORY
+        admin: además EVENTS
+    end note

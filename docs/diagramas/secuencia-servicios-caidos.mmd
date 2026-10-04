@@ -1,0 +1,44 @@
+sequenceDiagram
+    autonumber
+    participant N as nodo-02
+    participant D as ns1 (BIND9)
+    participant S as servidor (C)
+    participant L as ldap (OpenLDAP)
+    participant C as cliente
+
+    Note over N,D: caso 1, el DNS no responde al arrancar el nodo
+    N->>D: consulta A de servidor.monitoreo.lab
+    D--xN: sin respuesta
+    N->>N: getaddrinfo falla con EAI_AGAIN, registra, espera 1 s
+    N->>D: reintento
+    D--xN: sin respuesta
+    N->>N: registra, espera 2 s
+    N->>D: reintento
+    D-->>N: dirección del servidor
+    N->>S: connect TCP y REGISTER, sigue el flujo normal
+
+    Note over S,L: caso 2, el LDAP está caído cuando llega un LOGIN
+    C->>S: MCD/1.0|LOGIN|req=1|user=admin1|password=clave-de-ejemplo
+    S->>D: consulta A de ldap.monitoreo.lab
+    D-->>S: dirección del LDAP
+    S-xL: bind falla, conexión rechazada
+    S->>S: log SYS de la falla, LDAP en espera de 1 s
+    S-->>C: MCD/1.0|ERROR|req=1|code=503|reason=LDAP
+    Note over C: muestra servicio de autenticación no disponible, la conexión sigue abierta
+    C->>S: MCD/1.0|LOGIN|req=2|user=admin1|password=clave-de-ejemplo
+    S->>S: todavía dentro de la espera, no contacta al LDAP
+    S-->>C: MCD/1.0|ERROR|req=2|code=503|reason=LDAP
+    Note over S,L: el LDAP vuelve
+    C->>S: MCD/1.0|LOGIN|req=3|user=admin1|password=clave-de-ejemplo
+    S->>L: bind simple
+    L-->>S: bind exitoso
+    S->>S: espera de LDAP vuelve a 1 s
+    S-->>C: MCD/1.0|LOGIN_OK|req=3|user=admin1|role=admin
+
+    Note over S,D: caso 3, el servidor no puede resolver el nombre del LDAP
+    C->>S: nueva conexión TCP al puerto P
+    C->>S: MCD/1.0|LOGIN|req=1|user=admin1|password=clave-de-ejemplo
+    S->>D: consulta A de ldap.monitoreo.lab
+    D--xS: sin respuesta
+    S-->>C: MCD/1.0|ERROR|req=1|code=503|reason=DNS
+    Note over S: en ningún caso termina el proceso del servidor

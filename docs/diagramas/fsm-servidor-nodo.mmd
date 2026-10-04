@@ -1,0 +1,25 @@
+stateDiagram-v2
+    [*] --> DESCONOCIDO
+    DESCONOCIDO --> DESCONOCIDO : TELEMETRY / ERROR 404 NODO con límite
+    DESCONOCIDO --> ACTIVO : REGISTER válido y LDAP acepta / crea entrada, session nueva, REGISTER_OK
+    ACTIVO --> ACTIVO : TELEMETRY aceptada / actualiza estado e historial
+    ACTIVO --> ACTIVO : TELEMETRY duplicada o atrasada / descarta y cuenta
+    ACTIVO --> ACTIVO : EVENT / guarda si es nuevo, ACK
+    ACTIVO --> ACTIVO : REGISTER desde otra conexión / cierra la anterior, session nueva
+    ACTIVO --> SIN_REPORTE : watchdog, más de 3 periodos sin telemetría / evento CONECTIVIDAD
+    SIN_REPORTE --> ACTIVO : TELEMETRY aceptada / evento CONECTIVIDAD RECUPERADO
+    SIN_REPORTE --> SIN_REPORTE : EVENT / guarda si es nuevo, ACK
+    SIN_REPORTE --> ACTIVO : REGISTER desde otra conexión / session nueva
+    ACTIVO --> DESCONECTADO : BYE, recv 0 o error en la conexión vigente / invalida session
+    SIN_REPORTE --> DESCONECTADO : BYE, recv 0 o error en la conexión vigente / invalida session
+    DESCONECTADO --> DESCONECTADO : TELEMETRY / ERROR 404 SESION con límite
+    DESCONECTADO --> ACTIVO : REGISTER válido y LDAP acepta / session nueva, contadores en 0
+
+    note right of DESCONECTADO
+        El historial y los eventos del nodo
+        se conservan. LIST lo sigue mostrando.
+    end note
+    note left of SIN_REPORTE
+        Tiempo medido con el reloj del
+        servidor, no con el ts del nodo.
+    end note

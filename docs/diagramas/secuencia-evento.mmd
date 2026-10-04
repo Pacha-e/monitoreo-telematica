@@ -1,0 +1,22 @@
+sequenceDiagram
+    autonumber
+    participant N as nodo-01
+    participant S as servidor (hilo de la conexión)
+
+    Note over N,S: conexión TCP de control ya registrada
+    N->>S: MCD/1.0|EVENT|req=7|node_id=nodo-01|msg_id=1791122400-7|ts=1791126146|level=CRITICO|event=UMBRAL_TEMP|value=85.2
+    S->>S: msg_id nuevo para nodo-01, guarda evento y lo escribe en el log
+    S-->>N: MCD/1.0|ACK|req=7|node_id=nodo-01|msg_id=1791122400-7|dup=0
+    Note over N: saca el evento de la cola
+
+    N->>S: MCD/1.0|EVENT|req=8|node_id=nodo-01|msg_id=1791122400-8|ts=1791126151|level=CRITICO|event=FALLA|value=VENTILADOR
+    S->>S: guarda el evento 1791122400-8
+    S--xN: ACK req=8 no llega, la conexión se cae
+    Note over N: vence T_ack de 5 s, el evento sigue en la cola
+    N->>N: cierra TCP, ESPERA_REINTENTO de 1 s
+    N->>S: nueva conexión TCP y REGISTER
+    S-->>N: REGISTER_OK con session nueva
+    N->>S: MCD/1.0|EVENT|req=2|node_id=nodo-01|msg_id=1791122400-8|ts=1791126151|level=CRITICO|event=FALLA|value=VENTILADOR
+    S->>S: el par nodo-01 y 1791122400-8 ya existe, no lo guarda de nuevo
+    S-->>N: MCD/1.0|ACK|req=2|node_id=nodo-01|msg_id=1791122400-8|dup=1
+    Note over N,S: el evento quedó guardado una sola vez
