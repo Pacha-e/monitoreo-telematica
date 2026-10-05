@@ -28,7 +28,7 @@ Columna "Estado":
 | F1.2 | "arquitectura propuesta" | Exigido | P §4; D:despliegue.mmd | Este documento | Diseñado |
 | F1.3 | "entidades participantes" | Exigido | P §5; E §2.2 | Este documento | Diseñado |
 | F1.4 | "tipos de mensajes" | Exigido | P §6; E §5 | Este documento | Diseñado |
-| F1.5 | "sintaxis preliminar" | Exigido | P §7; E §4 | Validación de todos los ejemplos contra la gramática | Diseñado |
+| F1.5 | "sintaxis preliminar" | Exigido | P §7; E §4 | `tools/validar_ejemplos.py`: validación automatizada del formato, claves únicas y límite de 512 bytes | Diseñado |
 | F1.6 | "reglas básicas de comunicación" | Exigido | P §8 y §11; E §6 y §7 | Este documento | Diseñado |
 | F1.7 | "máquinas de estado" | Exigido | P §9; E §9; D:fsm-nodo, fsm-servidor-nodo, fsm-sesion-admin, fsm-cliente | Este documento | Diseñado |
 | F1.8 | "análisis preliminar sobre el uso de TCP y UDP" | Exigido | P §10 | Matriz de 9 criterios | Diseñado |
@@ -58,7 +58,7 @@ Columna "Estado":
 | R7e | "consulta de información" | Exigido | `LIST`, `STATUS`, `HISTORY`, `EVENTS` (E §5.8) | Log | Diseñado |
 | R7f | "respuesta a una consulta" | Exigido | `RESPONSE` e `ITEM` (E §5.9) | Log | Diseñado |
 | R7g | "reporte de errores" | Exigido | `ERROR` y tabla de códigos (E §5.10, §6) | Pruebas con mensajes inválidos | Diseñado |
-| R8 | "describir la especificación del servicio, el vocabulario de mensajes, las reglas de procedimiento ... suficientemente clara para permitir que una persona diferente pueda implementar el protocolo" | Exigido | E completo | Validador independiente escrito solo desde la especificación; todos los ejemplos de la especificación pasan | Diseñado |
+| R8 | "describir la especificación del servicio, el vocabulario de mensajes, las reglas de procedimiento ... suficientemente clara para permitir que una persona diferente pueda implementar el protocolo" | Exigido | E completo | Revisión cruzada independiente y `tools/validar_ejemplos.py`; los ejemplos válidos cumplen el formato y el límite de tamaño | Diseñado |
 | R8a | "Visión General del Protocolo" | Recomendado (estructura tipo RFC 793) | E §2 | | Diseñado |
 | R8b | "Especificación del Servicio ... primitivas" | Recomendado | E §3 | | Diseñado |
 | R8c | "Formato de Mensajes (Encabezado) ... campos ... tamaño ... significado ... valores posibles" | Recomendado | E §4.2, §4.5 | | Diseñado |

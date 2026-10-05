@@ -390,7 +390,7 @@ MCD/1.0|ITEM|req=2|idx=1|node_id=nodo-01|kind=SENSOR|state=ACTIVO|last_seen=1791
 MCD/1.0|ITEM|req=2|idx=2|node_id=nodo-02|kind=RED|state=SIN_REPORTE|last_seen=1791126121
 ```
 
-El ítem de `STATUS` es el mensaje más largo del protocolo. Con todos los campos en su tamaño máximo mide menos de 300 bytes:
+El ítem de `STATUS` es el mensaje más largo del protocolo. Con todos los campos en su tamaño máximo ocupa 245 bytes, incluido el salto de línea:
 
 ```
 MCD/1.0|RESPONSE|req=3|op=STATUS|items=1
@@ -463,7 +463,7 @@ Para que dos implementaciones respondan el mismo código ante el mismo mensaje, 
 7. Campos: obligatorios, desconocidos, repetidos y valores (422).
 8. Semántica: nodo ajeno (403), nodo o sesión desconocidos (404), credenciales (401), servicios externos (503).
 
-Si no se pudo extraer `req` (pasos 1 a 4 o `req` inválido), el `ERROR` lleva `req=0`.
+Si no se pudo extraer `req` (pasos 1 a 4, `req` inválido o un tipo que no lleva `req`, como `TELEMETRY`), el `ERROR` lleva `req=0`.
 
 ## 7. Reglas de procedimiento
 
@@ -568,7 +568,7 @@ El servidor no guarda contraseñas. Cada verificación se hace contra LDAP en el
 
 ### 7.8 Watchdog
 
-Un hilo del servidor revisa la tabla cada segundo. Si un nodo `ACTIVO` lleva más de `3 × period` segundos sin telemetría aceptada (medido con el reloj del servidor, no con el `ts` del nodo), pasa a `SIN_REPORTE` y se genera el evento interno `CONECTIVIDAD` con `value=SIN_REPORTE` y `level=ADVERTENCIA`. Los eventos internos usan `msg_id=srv-<n>` con un contador propio del servidor.
+Un hilo del servidor revisa la tabla cada segundo. Si un nodo `ACTIVO` lleva más de `3 × period` segundos sin telemetría aceptada (medido con el reloj del servidor, no con el `ts` del nodo), pasa a `SIN_REPORTE` y se genera el evento interno `CONECTIVIDAD` con `value=SIN_REPORTE` y `level=ADVERTENCIA`. Los eventos internos usan el `node_id` del nodo afectado y `msg_id=srv-<n>`, con un contador propio del servidor.
 
 Se eligieron tres periodos porque una sola pérdida UDP es normal y no debe disparar una alarma; tres seguidas ya indican un problema real del nodo o de la red.
 
@@ -603,7 +603,7 @@ La espera vuelve a 1 s después de un éxito (registro aceptado, sesión iniciad
 | Límite de `ERROR` por UDP | 1 cada 5 s por IP:puerto | Servidor | Los siguientes errores solo se registran |
 | Backoff | 1, 2, 4, 8, 16, 30 s | Todos | Ver 7.9 |
 
-La conexión TCP de un nodo no tiene temporizador de inactividad, porque los eventos son esporádicos y la vida del nodo se vigila con la telemetría. El servidor debería activar `SO_KEEPALIVE` en todas las conexiones aceptadas para detectar a la larga conexiones medio abiertas.
+La conexión TCP de un nodo no tiene temporizador de inactividad, porque los eventos son esporádicos y la vida del nodo se vigila con la telemetría. El servidor debe activar `SO_KEEPALIVE` en todas las conexiones aceptadas para detectar a la larga conexiones medio abiertas.
 
 | Límite | Valor |
 |---|---|

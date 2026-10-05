@@ -19,7 +19,7 @@ Tabla reducida:
 | Flujo | Transporte | Razón principal |
 |---|---|---|
 | Registro | TCP | Crea estado, no se puede perder |
-| Telemetría cada 5 s | UDP | La siguiente muestra reemplaza a la perdida |
+| Telemetría cada 5 s | UDP | La siguiente muestra reemplaza a la pérdida |
 | Eventos | TCP + `ACK` | No se pueden perder ni duplicar |
 | Login y consultas | TCP | Sesión, orden y respuestas largas |
 
@@ -57,7 +57,7 @@ Tabla reducida:
 
 ### 2:50 a 3:50. Diapositiva 4
 
-"Tres reglas sostienen el protocolo. Primero, nada funciona antes de registrarse o autenticarse. Segundo, cada telemetría lleva un número de secuencia: si se repite la descarto como duplicada, si es menor la descarto como atrasada y si salta, cuento las perdidas. Tercero, cada evento lleva un identificador que combina la hora de arranque del nodo y un contador; si el nodo lo reenvía después de reconectarse, el servidor lo reconoce y confirma sin guardarlo dos veces. Esta máquina es la del nodo visto desde el servidor: si pasan tres periodos sin telemetría, el nodo pasa a sin reporte, y vuelve a activo con la siguiente muestra."
+"Tres reglas sostienen el protocolo. Primero, nada funciona antes de registrarse o autenticarse. Segundo, cada telemetría lleva un número de secuencia: si se repite la descarto como duplicada, si es menor la descarto como atrasada y si salta, cuento las pérdidas. Tercero, cada evento lleva un identificador que combina la hora de arranque del nodo y un contador; si el nodo lo reenvía después de reconectarse, el servidor lo reconoce y confirma sin guardarlo dos veces. Esta máquina es la del nodo visto desde el servidor: si pasan más de tres periodos sin telemetría, el nodo pasa a sin reporte, y vuelve a activo con la siguiente muestra."
 
 ### 3:50 a 4:40. Diapositiva 5
 
@@ -74,7 +74,7 @@ Tabla reducida:
 3. Si TCP ya es confiable, ¿para qué el `ACK` de los eventos?
    TCP confirma que los bytes llegaron al sistema operativo del servidor, no que la aplicación guardó el evento. Si la conexión se cae justo después de enviar, el nodo no sabe qué pasó. El `ACK` se envía después de guardar, y el `msg_id` evita duplicar si el nodo reenvía.
 
-4. ¿Cómo separan los mensajes en TCP?
+4. ¿Cómo se separan los mensajes en TCP?
    TCP es un flujo de bytes: un `recv()` puede traer medio mensaje o varios. Guardo lo recibido en un buffer por conexión y saco un mensaje cada vez que encuentro un `\n`. Si se acumulan 512 bytes sin `\n`, respondo 413 y cierro.
 
 5. ¿Qué pasa si llega un mensaje de 600 bytes?
@@ -86,7 +86,7 @@ Tabla reducida:
 7. ¿Qué pasa con el `msg_id` si el nodo se reinicia?
    El `msg_id` es `<arranque>-<contador>`. El arranque es la hora en que inició el proceso, así que después de un reinicio los identificadores son distintos aunque el contador vuelva a 1. Solo fallaría si el reloj del nodo retrocede.
 
-8. ¿Cómo pueden usar el mismo puerto para TCP y UDP?
+8. ¿Cómo se puede usar el mismo puerto para TCP y UDP?
    Son espacios de puertos independientes. Un socket se identifica por protocolo, IP y puerto de cada extremo, así que el 5050 TCP y el 5050 UDP son sockets distintos. Así cumplo el único parámetro de puerto que pide el enunciado.
 
 9. ¿Qué pasa si el DNS falla? ¿Cómo escucha el servidor sin escribir una IP?
@@ -98,7 +98,7 @@ Tabla reducida:
 11. ¿Por qué hilos y no `fork()` ni `select()`?
     Con `fork()` cada proceso tendría su copia de la tabla de nodos y el hilo UDP no podría actualizar lo que leen los demás sin memoria compartida. Con `select()` una verificación LDAP lenta bloquearía a todos. Las conexiones esperadas son pocas, así que un hilo por conexión es razonable.
 
-12. Si dos clientes piden el historial mientras llega telemetría, ¿cómo evitan condiciones de carrera?
+12. Si dos clientes piden el historial mientras llega telemetría, ¿cómo se evitan condiciones de carrera?
     Un mutex protege la tabla. Quien responde una consulta copia los datos con el mutex tomado, lo suelta y después envía. El log tiene su propio mutex y siempre se toman en el mismo orden, tabla y luego log, para que no haya interbloqueo.
 
 13. Las claves viajan en texto claro. ¿No es un problema?

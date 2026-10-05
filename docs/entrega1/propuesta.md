@@ -39,7 +39,7 @@ Universidad EAFIT, semestre 2026-2
 
 ### Correspondencia con lo que pide la Fase 1
 
-El enunciado pide que la propuesta inicial incluya ocho puntos y anuncia una exposición corta. Esta tabla indica dónde está cada uno.
+El enunciado pide que la propuesta inicial incluya ocho puntos y anuncia una exposición corta (Universidad EAFIT, 2026c). Esta tabla indica dónde está cada uno.
 
 | Punto literal del enunciado (Fase 1) | Dónde se responde |
 |---|---|
@@ -53,7 +53,7 @@ El enunciado pide que la propuesta inicial incluya ocho puntos y anuncia una exp
 | análisis preliminar sobre el uso de TCP y UDP | Sección 10 |
 | exposición corta de unos cinco minutos | `docs/entrega1/exposicion.md` |
 
-La especificación completa del protocolo está en `docs/protocolo/MCD-1.0.md`. Esta propuesta explica las decisiones; la especificación las fija con el detalle necesario para implementarlas. Los dos documentos usan los mismos nombres, valores y límites. La correspondencia completa con todos los requisitos del enunciado está en `docs/entrega1/trazabilidad.md`.
+La especificación completa del protocolo está en `docs/protocolo/MCD-1.0.md`. Esta propuesta explica las decisiones; la especificación las fija con el detalle necesario para implementarlas y toma como referencia la organización de una especificación clásica de transporte (Postel, 1981). Los dos documentos usan los mismos nombres, valores y límites. La correspondencia completa con todos los requisitos del enunciado está en `docs/entrega1/trazabilidad.md`.
 
 A lo largo del documento separo tres cosas: lo que exige el enunciado (lo cito como "el enunciado pide" o por su número de requisito), lo que decidí yo para cumplirlo ("decisión") y lo que queda para las fases siguientes ("Fase 2" o "Fase 3").
 
@@ -61,11 +61,11 @@ A lo largo del documento separo tres cosas: lo que exige el enunciado (lo cito c
 
 ## 1. Resumen
 
-El proyecto es un sistema donde varios nodos le reportan su estado a un servidor central y unos clientes de administración consultan ese estado. Para que todo esto funcione diseñé un protocolo de aplicación propio, MCD/1.0 (Monitoreo y Control Distribuido), que se apoya en los dos tipos de sockets Berkeley.
+El proyecto es un sistema donde varios nodos le reportan su estado a un servidor central y unos clientes de administración consultan ese estado. Para coordinar esa comunicación diseñé un protocolo de aplicación propio, MCD/1.0 (Monitoreo y Control Distribuido), que se apoya en los dos tipos de sockets Berkeley.
 
-La idea central del diseño es que no todos los mensajes tienen las mismas necesidades. La telemetría periódica es pequeña, frecuente y reemplazable: si se pierde una muestra, la siguiente llega pocos segundos después. Por eso va por UDP, sin confirmación, con un número de secuencia que permite detectar pérdidas, duplicados y desorden. El registro de los nodos, los eventos críticos, la autenticación y las consultas no toleran pérdidas y crean o leen estado, así que van por TCP. Los eventos llevan además una confirmación de aplicación y un identificador que evita guardarlos dos veces.
+La idea central del diseño es que no todos los mensajes tienen las mismas necesidades. La telemetría periódica es pequeña, frecuente y reemplazable: si se pierde una muestra, la siguiente llega pocos segundos después. Por eso va por UDP, sin confirmación, con un número de secuencia que permite detectar pérdidas, duplicados y desorden. El registro de los nodos, los eventos críticos, la autenticación y las consultas no toleran pérdidas y crean o leen estado, así que van por TCP. Los eventos llevan además una confirmación de aplicación y un identificador que evita guardarlos dos veces (Eddy, 2022; Postel, 1980).
 
-El servidor está en C, atiende con un hilo por conexión TCP, un hilo para UDP y un hilo de vigilancia de temporizadores. Los nombres se resuelven con un DNS propio (BIND9, zona `monitoreo.lab`) y la autenticación de usuarios y nodos se hace contra OpenLDAP, con dos perfiles: `admin` y `operador`.
+El servidor está en C, atiende con un hilo por conexión TCP, un hilo para UDP y un hilo de vigilancia de temporizadores (watchdog). Los nombres se resuelven con un DNS propio (BIND9, zona `monitoreo.lab`) y la autenticación de usuarios y nodos se hace contra OpenLDAP, con dos perfiles: `admin` y `operador` (Universidad EAFIT, 2026a).
 
 ## 2. Descripción general del problema
 
@@ -74,7 +74,7 @@ Una organización tiene equipos repartidos (sensores, equipos de red, dispositiv
 - Su estado periódico: uso de CPU, temperatura, nivel de batería, estado operativo y tiempo encendido. El enunciado aclara que perder alguno de estos mensajes de vez en cuando es tolerable, siempre que el dato se siga actualizando.
 - Eventos críticos: fallas, superación de umbrales, pérdida de conectividad, alarmas o cambios importantes de estado. Aquí perder un mensaje sí tiene consecuencias.
 
-El servidor central tiene que juntar lo que llega de varios nodos, mantener una foto actualizada de la infraestructura (qué nodos existen, cuáles están reportando y cuál fue su último estado), guardar un poco de historia y responder a los clientes de administración que preguntan por todo esto. Esos clientes no hablan con los nodos; todo pasa por el servidor.
+El servidor central tiene que juntar lo que llega de varios nodos, mantener una foto actualizada de la infraestructura (qué nodos existen, cuáles están reportando y cuál fue su último estado), guardar un historial reciente y responder a los clientes de administración que preguntan por todo esto. Esos clientes no hablan con los nodos; todo pasa por el servidor.
 
 El problema de fondo, y lo que el curso quiere evaluar, es diseñar el protocolo que coordina esta comunicación y decidir, para cada tipo de mensaje, qué servicio de transporte le conviene. Además el sistema tiene que integrarse con servicios reales de Internet: resolución de nombres en lugar de direcciones fijas y un servicio de autenticación centralizado en lugar de una lista de usuarios dentro del programa.
 
@@ -197,7 +197,7 @@ Cada mensaje es una línea de texto ASCII:
 MCD/1.0|TIPO|clave=valor|clave=valor|...\n
 ```
 
-Reglas principales (la gramática ABNF completa está en la especificación, sección 4.2):
+Reglas principales (la gramática ABNF completa está en la especificación, sección 4.2, y sigue la notación definida por Crocker y Overell (2008), con la extensión de Kyzivat (2014)):
 
 - Empieza con la versión `MCD/1.0` y luego el tipo en mayúsculas.
 - Los campos son pares `clave=valor` separados por `|`. Las claves van en minúscula.
@@ -217,7 +217,7 @@ Por qué texto y por qué así:
 
 - Texto legible: puedo probar el servidor con `nc` antes de tener los clientes, y en Wireshark se lee cada mensaje sin decodificador. Es la misma idea de HTTP y SMTP que vimos en clase.
 - Delimitado por `\n`: TCP entrega un flujo de bytes, no mensajes. Necesito una marca de fin para separar los mensajes cuando un `recv()` trae medio mensaje o varios juntos. Un salto de línea es la marca más simple de depurar.
-- 512 bytes de máximo: el mensaje más grande que puede existir (un `ITEM` de estado con todos los campos al máximo) mide como máximo 250 bytes, así que sobra margen. Además un datagrama de 512 bytes más los encabezados UDP e IP (540 bytes en total) nunca se fragmenta en Ethernet.
+- 512 bytes de máximo: el mensaje más grande que puede existir (un `ITEM` de estado con todos los campos al máximo) mide como máximo 245 bytes, así que sobra margen. Además un datagrama de 512 bytes más los encabezados UDP e IP (540 bytes en total) nunca se fragmenta en Ethernet.
 - Caracteres restringidos: evitan que un valor rompa la estructura del mensaje, que inyecte algo en una consulta LDAP o que dañe una línea del log. También simplifican el parser en C.
 
 Campos que se repiten en varios mensajes:
@@ -252,7 +252,7 @@ Las reglas completas, con algoritmos, están en la especificación, sección 7. 
 Hay cuatro máquinas. Cada una tiene su diagrama en `docs/diagramas/` y su tabla de transiciones completa en la sección 9 de la especificación. Aquí resumo qué controla cada una:
 
 - **Nodo (`fsm-nodo.mmd`)**: pasa por resolución DNS, conexión, registro y operación. Una falla lleva a `ESPERA_REINTENTO`; un evento espera su `ACK` sin detener la telemetría periódica.
-- **Nodo visto por el servidor (`fsm-servidor-nodo.mmd`)**: empieza como `DESCONOCIDO`, queda `ACTIVO` después de registrarse y pasa a `SIN_REPORTE` si no llega telemetría durante tres periodos. Un cierre TCP lo deja `DESCONECTADO`.
+- **Nodo visto por el servidor (`fsm-servidor-nodo.mmd`)**: empieza como `DESCONOCIDO`, queda `ACTIVO` después de registrarse y pasa a `SIN_REPORTE` si pasan más de tres periodos sin telemetría. Un cierre TCP lo deja `DESCONECTADO`.
 - **Sesión administrativa (`fsm-sesion-admin.mmd`)**: exige `LOGIN`, limita los intentos y solo permite consultas después de autenticar el perfil en LDAP.
 - **Cliente de administración (`fsm-cliente.mmd`)**: obtiene credenciales, resuelve el servidor, inicia sesión, consulta y vuelve a conectarse si falla la red. Un 401 o 403 lo devuelve al formulario.
 
@@ -260,14 +260,14 @@ Los diagramas muestran las transiciones; la especificación define de manera nor
 
 ## 10. Análisis preliminar sobre el uso de TCP y UDP
 
-El enunciado pide analizar cada tipo de mensaje según nueve criterios y no simplemente declarar un protocolo "mejor". Agrupo los mensajes en cuatro flujos, porque los mensajes de un mismo flujo comparten necesidades (por ejemplo, `RESPONSE` e `ITEM` viajan siempre como respuesta a una consulta).
+El enunciado pide analizar cada tipo de mensaje según nueve criterios y no simplemente declarar un protocolo "mejor" (Universidad EAFIT, 2026b). Agrupo los mensajes en cuatro flujos, porque los mensajes de un mismo flujo comparten necesidades (por ejemplo, `RESPONSE` e `ITEM` viajan siempre como respuesta a una consulta).
 
 ### 10.1 Matriz por criterio
 
 | Criterio | Registro (`REGISTER`, `REGISTER_OK`) | Telemetría (`TELEMETRY`) | Eventos (`EVENT`, `ACK`) | Autenticación y consultas (`LOGIN`, `LIST`, `STATUS`, `HISTORY`, `EVENTS`, `RESPONSE`, `ITEM`, `BYE`) |
 |---|---|---|---|---|
 | Frecuencia de transmisión | Una vez por arranque o reconexión | Cada `period` segundos por nodo (5 s por defecto) | Esporádica, cuando algo pasa | Un `LOGIN` por sesión; luego unas pocas consultas cada 5 s |
-| Tamaño de los mensajes | 84 y 76 bytes en el ejemplo; máximo 166 | 129 bytes en el ejemplo; máximo 182 | 113 y 60 bytes en el ejemplo; máximo 188 | Consultas de 19 a 61 bytes; respuestas de 1 línea `RESPONSE` más hasta 32 líneas `ITEM` (un `LIST` con la tabla llena), cada una de hasta 250 bytes |
+| Tamaño de los mensajes | 84 y 76 bytes en el ejemplo; máximo 166 | 129 bytes en el ejemplo; máximo 182 | 113 y 60 bytes en el ejemplo; máximo 188 | Consultas de 19 a 76 bytes; respuestas de 1 línea `RESPONSE` más hasta 32 líneas `ITEM` (un `LIST` con la tabla llena), cada una de hasta 245 bytes |
 | Criticidad de la información | Alta: sin registro no hay sesión ni telemetría válida | Baja por muestra: la siguiente reemplaza a la anterior | Alta: una falla o una alarma no se puede perder | Alta: credenciales y datos que la persona va a mirar |
 | Tolerancia a pérdidas | Ninguna | Alta, siempre que la pérdida sea ocasional | Ninguna | Ninguna |
 | Necesidad de orden | Sí: el registro debe llegar antes que cualquier evento | No: una muestra atrasada se descarta | Sí entre eventos de un mismo nodo | Sí: `RESPONSE` debe preceder a sus `ITEM` y estos ir en orden |
@@ -293,7 +293,7 @@ La limitación es que UDP no avisa nada: ni pérdidas, ni duplicados, ni desorde
 |---|---|---|
 | confirmación de recepción | No | Confirmar cada muestra duplicaría el tráfico para proteger datos que de todas formas se reemplazan |
 | identificación de mensajes | Sí | `node_id` y `session` identifican el origen; `seq` identifica la muestra |
-| temporizadores | Sí, en el servidor | El watchdog detecta 3 periodos sin datos y marca `SIN_REPORTE` |
+| temporizadores | Sí, en el servidor | El watchdog detecta más de 3 periodos sin datos y marca `SIN_REPORTE` |
 | retransmisión | No | Una muestra retransmitida llegaría vieja |
 | detección de duplicados | Sí | `seq` igual al último se descarta y se cuenta |
 | control de mensajes fuera de orden | Sí | `seq` menor al último se descarta y se cuenta |
@@ -307,7 +307,7 @@ Lo que TCP no resuelve es un caso concreto: el servidor guardó el evento, pero 
 - Un `ACK` que el servidor envía después de guardar el evento. Significa "procesado", no solo "recibido", que es lo único que TCP garantiza.
 - Un `msg_id` estable para que el reenvío después de reconectar no se guarde dos veces.
 
-El costo de TCP aquí es poco: los eventos son esporádicos y la conexión ya está abierta por el registro.
+El costo de usar TCP aquí es bajo: los eventos son esporádicos y la conexión ya está abierta por el registro.
 
 ### 10.4 Registro, autenticación y consultas por TCP
 
@@ -315,7 +315,7 @@ Estos flujos crean o leen estado y siguen un patrón de petición y respuesta. N
 
 ### 10.5 Resultado
 
-La arquitectura usa una combinación de TCP y UDP, una de las tres opciones que el enunciado permite: UDP solo para la telemetría y TCP para todo lo demás. Los mecanismos de aplicación que agrego (secuencia en la telemetría, confirmación e identificador en los eventos) responden a necesidades concretas de cada flujo y no reimplementan TCP.
+La arquitectura combina TCP y UDP, que es una de las tres opciones que permite el enunciado: UDP solo para la telemetría y TCP para todo lo demás. Lo que agrego en la aplicación (secuencia en la telemetría, confirmación e identificador en los eventos) responde a un problema concreto de cada flujo.
 
 ## 11. Excepciones y errores
 
@@ -326,15 +326,15 @@ El requisito 11 pide control de excepciones y la Fase 3 enumera las situaciones 
 | Mensajes con formato incorrecto | 400 (`FORMATO`, `VERSION` o `TIPO`). La conexión sigue; al quinto error seguido se cierra. Por UDP se descarta sin respuesta y se registra |
 | Mensaje demasiado largo | 413 `TAMANO` y cierre, porque ya no es seguro saber dónde empieza el siguiente mensaje |
 | Parámetros inválidos | 422 con el motivo (`FALTA_CAMPO`, `CAMPO_DESCONOCIDO`, `CAMPO_REPETIDO` o `VALOR`) y el campo culpable en `field` |
-| Desconexiones | `recv()` devuelve 0 o -1: el servidor libera la conexión y, si era un nodo, lo marca `DESCONECTADO`. El nodo y el cliente reconectan con backoff |
-| Fallas en la comunicación (conexión rechazada, sin ruta, `send` fallido) | Se registran y se reintenta con backoff. El servidor ignora `SIGPIPE` para no morir al escribir en un socket cerrado |
+| Desconexiones | `recv()` devuelve 0 o -1: el servidor libera la conexión y, si era un nodo, lo marca `DESCONECTADO`. El nodo y el cliente reconectan con espera creciente |
+| Fallas en la comunicación (conexión rechazada, sin ruta, `send` fallido) | Se registran y se reintenta con espera creciente. El servidor ignora `SIGPIPE` para no morir al escribir en un socket cerrado |
 | Nodos desconocidos | Consulta sobre un nodo que no existe: 404 `NODO`. Telemetría de un nodo desconocido o con sesión vieja: 404 por UDP, como máximo uno cada 5 s por origen |
 | Expiración de temporizadores | `T_ident` (60 s sin identificarse) y `T_inactividad` (5 min sin peticiones): 408 y cierre. `T_ack` en el nodo: reconexión y reenvío. `T_resp` en nodo y cliente: se trata como falla de red. Watchdog: `SIN_REPORTE` |
 | Pérdida de mensajes | Telemetría: se cuenta y se sigue. Evento: reenvío tras `T_ack` |
 | Duplicación de mensajes | Telemetría: `seq` repetido se descarta. Evento: `msg_id` repetido se confirma con `dup=1` y no se guarda dos veces |
 | Credenciales inválidas o perfil insuficiente | 401 `CREDENCIALES` (3 intentos por conexión) y 403 `ROL` |
 | Mensaje en un estado que no corresponde | 401 `SIN_SESION` si falta identificarse; 409 `ESTADO` si ya se identificó; 409 `TRANSPORTE` si llega telemetría por TCP |
-| Falla de DNS | Se registra, se reintenta con backoff y el proceso no termina (requisito 4) |
+| Falla de DNS | Se registra, se reintenta con espera creciente y el proceso no termina (requisito 4) |
 | Falla del LDAP | 503 al que pidió, espera creciente antes de volver a contactar al LDAP, el servidor sigue atendiendo |
 | Servidor lleno | 503 `CAPACIDAD` al aceptar la conexión número 65 o al registrar el nodo número 33 |
 | Falla interna | 500 `INTERNO`, se cierra solo esa conexión |
@@ -343,7 +343,7 @@ Para que el comportamiento sea predecible, la especificación fija un orden de v
 
 ## 12. Autenticación y perfiles
 
-El requisito 6 pide autenticación y gestión de perfiles, y recomienda no basarla en archivos locales ni en una base de datos dentro de la aplicación. Decisión: usar OpenLDAP, el servicio de directorio que vimos en clase.
+El requisito 6 pide autenticación y gestión de perfiles, y recomienda no basarla en archivos locales ni en una base de datos dentro de la aplicación. Decidí usar OpenLDAP, el servicio de directorio estudiado en clase (Sermersheim, 2006; Universidad EAFIT, 2026a).
 
 Estructura del directorio:
 
@@ -378,13 +378,13 @@ Limitaciones y punto abierto:
 
 ## 13. Resolución de nombres (DNS)
 
-El requisito 4 prohíbe direcciones IP en el código y exige que una falla de resolución no termine el servicio.
+El requisito 4 prohíbe direcciones IP en el código y exige que una falla de resolución no termine el servicio. La resolución se apoya en el modelo DNS descrito por Mockapetris (1987a, 1987b).
 
 - Zona `monitoreo.lab` en BIND9, con registros para `ns1`, `servidor` y `ldap`. Las máquinas apuntan su resolvedor a `ns1` (en Ubuntu hay que tener en cuenta `systemd-resolved`, como vimos en el laboratorio de DNS).
 - El nodo y el cliente reciben el nombre del servidor y el puerto por configuración o por argumentos, y resuelven con `socket.getaddrinfo` en cada intento de conexión.
 - El servidor lee el nombre del LDAP de la variable de entorno `MCD_LDAP_HOST` (por defecto `ldap.monitoreo.lab`) y lo resuelve con `getaddrinfo` antes de cada verificación. Así puede responder 503 `DNS` o 503 `LDAP` según dónde estuvo la falla.
 - Para escuchar, el servidor usa `getaddrinfo` con `AI_PASSIVE` y sin nombre de host, lo que equivale a todas sus interfaces sin escribir ninguna dirección.
-- Si la resolución falla (`EAI_AGAIN`, `EAI_NONAME` en C; `socket.gaierror` en Python), se registra y se reintenta con backoff. El proceso sigue vivo.
+- Si la resolución falla (`EAI_AGAIN`, `EAI_NONAME` en C; `socket.gaierror` en Python), se registra y se reintenta con la espera creciente de la regla 10 (sección 8). El proceso sigue vivo.
 
 ## 14. Concurrencia prevista
 
@@ -423,7 +423,7 @@ Formato de cada línea: fecha UTC, canal, dirección del otro extremo, sentido y
 ```
 2026-10-04T15:02:06Z TCP 192.168.56.21:51522 <- MCD/1.0|REGISTER|req=1|node_id=nodo-01|secret=***|kind=SENSOR|period=5
 2026-10-04T15:02:06Z TCP 192.168.56.21:51522 -> MCD/1.0|REGISTER_OK|req=1|node_id=nodo-01|session=4f9c2a7d1e0b8c63|period=5
-2026-10-04T15:02:11Z UDP 192.168.56.21:40311 <- MCD/1.0|TELEMETRY|node_id=nodo-01|session=4f9c2a7d1e0b8c63|seq=41|ts=1791126131|cpu=37.5|temp=48.1|bat=91|opstate=OK|uptime=3731
+2026-10-04T15:02:11Z UDP 192.168.56.21:40311 <- MCD/1.0|TELEMETRY|node_id=nodo-01|session=4f9c2a7d1e0b8c63|seq=1|ts=1791126131|cpu=37.5|temp=48.1|bat=91|opstate=OK|uptime=3731
 2026-10-04T15:02:17Z SYS - -- nodo-02 estado=SIN_REPORTE anterior=ACTIVO msg_id=srv-3
 ```
 
@@ -459,7 +459,7 @@ Varias exigencias del enunciado se evalúan en fases posteriores pero condiciona
 
 | Lo que la Fase 2 debe demostrar | Cómo lo prepara este diseño |
 |---|---|
-| creación y configuración de los sockets | `getaddrinfo` con `AI_PASSIVE`, `SO_REUSEADDR`, un socket TCP y uno UDP en el mismo puerto (especificación, sección 10) |
+| creación y configuración de los sockets | `getaddrinfo` con `AI_PASSIVE`, `SO_REUSEADDR`, un socket TCP y uno UDP en el mismo puerto (Universidad EAFIT, 2026d; especificación, sección 10) |
 | establecimiento de la comunicación | Identificación por primer mensaje (`REGISTER` o `LOGIN`) |
 | envío de mensajes | Envío completo con reintento ante `send()` parcial (4.3 de la especificación) |
 | recepción de mensajes | Buffer por conexión y separación por `\n`; un mensaje por datagrama |
@@ -491,37 +491,49 @@ Orden de implementación previsto: servidor TCP con argumentos y log; parser y e
 
 ## 18. Decisiones descartadas
 
+Estas son las alternativas que más pesaron en el diseño. Otras ya quedan justificadas donde se tomó la decisión: confirmar cada telemetría (sección 10.2), usar puertos distintos para nodos y clientes (sección 4.2), meter listas dentro de un campo (sección 6.3) y atender con un proceso por conexión (sección 14).
+
 | Alternativa | Por qué la descarté |
 |---|---|
 | Todo por TCP | Más simple, pero la telemetría sufriría bloqueos por retransmisión de datos que ya no sirven, y el análisis TCP/UDP quedaría solo en teoría |
 | Todo por UDP | Obligaría a reimplementar confiabilidad, orden y sesión para registro, eventos y consultas; el enunciado pide no reimplementar TCP |
 | Eventos por UDP con `ACK`, temporizador y retransmisión | Daría más control sobre la latencia, pero son cinco mecanismos más y más casos de error para un flujo esporádico que TCP ya resuelve |
-| Telemetría UDP con `ACK` | Duplicaría el tráfico para proteger datos que el siguiente reporte reemplaza |
 | Protocolo binario con encabezado fijo | Mensajes más pequeños, pero hay que cuidar el orden de bytes (`htons`, `ntohl`), no se puede probar con `nc` y en Wireshark hace falta un decodificador. Con 129 bytes por telemetría el tamaño no es un problema |
-| Separador de fin `\r\n` o líneas en blanco (estilo HTTP o SMTP) | Un mensaje por línea con `\n` basta, porque no hay cuerpo de longitud variable |
-| Listas dentro de un campo (`nodos=a:ACTIVO,b:SIN_REPORTE`) | Requiere caracteres extra en los valores y el historial no cabría en 512 bytes; se reemplazó por `RESPONSE` más `ITEM` |
-| Aceptar campos desconocidos (como los encabezados HTTP) | Facilita extender el protocolo, pero esconde errores de programación. En la versión 1.0 prefiero rechazar con 422 y cambiar de versión si hace falta |
-| Puertos distintos para nodos y para clientes | El enunciado define un solo parámetro de puerto; el primer mensaje basta para distinguir |
 | Usuarios en un archivo o en una base de datos propia | El enunciado lo desaconseja; LDAP es el servicio de directorio visto en clase |
-| Un proceso por conexión (`fork`) | Complica compartir la tabla de nodos con el hilo UDP (ver sección 14) |
-| Un solo hilo con `select()` | Una consulta LDAP lenta bloquearía a todos |
+| Un solo hilo con `select()` | Evitaría los mutex, pero una verificación LDAP lenta bloquearía a todos los demás clientes |
 | `msg_id` como contador simple desde 1 | Un nodo que se reinicia repetiría identificadores y el servidor descartaría eventos nuevos como duplicados. Por eso se antepone la hora de arranque |
 | Marcar `SIN_REPORTE` tras un solo periodo sin datos | Una pérdida UDP aislada es normal y generaría falsas alarmas |
 
 ## 19. Conclusiones
 
-- El enunciado describe dos tipos de información con necesidades opuestas, y el diseño las trata distinto: la telemetría prioriza la frescura y va por UDP; lo que no se puede perder va por TCP.
-- Los mecanismos que agrego encima del transporte son los mínimos que cada flujo necesita: número de secuencia para la telemetría y confirmación con identificador estable para los eventos. No reconstruyo TCP sobre UDP.
-- El formato de texto con un mensaje por línea me deja probar todo con `nc` y verificar en Wireshark que lo que viaja coincide con esta especificación, que es justo lo que pide la Fase 2.
-- Los requisitos de las fases siguientes (concurrencia, errores, temporizadores, DNS, LDAP, logging) quedaron decididos ahora, para no tener que cambiar el protocolo cuando empiece a programar.
-- Queda por confirmar con el profesor el uso de `libldap` desde el servidor en C; no sustituye la API Berkeley usada para los sockets.
+El punto de partida del diseño fue que el enunciado describe dos tipos de información con necesidades opuestas. Por eso la telemetría, donde importa más tener el dato reciente que recibir cada muestra, va por UDP, y todo lo que no se puede perder va por TCP. Encima del transporte agregué solo lo que cada flujo necesita: un número de secuencia en la telemetría y, en los eventos, una confirmación con un identificador estable.
+
+El formato de texto, con un mensaje por línea, me permite probar el servidor con `nc` y comprobar en Wireshark que lo que viaja coincide con la especificación, que es justo lo que pide la Fase 2. También dejé decididos desde ahora la concurrencia, los errores, los temporizadores, el DNS, el LDAP y el log, para no tener que cambiar el protocolo cuando empiece a programar.
+
+Queda un punto abierto: confirmar con el profesor el uso de `libldap` en el servidor. Esa biblioteca solo sirve para hablar con el directorio; los sockets del protocolo siguen construidos con la API Berkeley.
 
 ## 20. Referencias
 
-- Enunciado del proyecto "Sistema de monitoreo y control distribuido", ST0255 Telemática, 2026-2.
-- Material del curso: capa de aplicación (DNS, HTTP, SMTP, LDAP y NFS), capa de transporte, programación de sockets, entorno de pruebas y Taller 1.
-- RFC 793 y RFC 9293, Transmission Control Protocol.
-- RFC 768, User Datagram Protocol.
-- RFC 5234, Augmented BNF for Syntax Specifications: ABNF. RFC 7405, Case-Sensitive String Support in ABNF.
-- RFC 1034 y RFC 1035, Domain Names.
-- RFC 4511, Lightweight Directory Access Protocol (LDAP): The Protocol.
+Crocker, D. (Ed.), & Overell, P. (2008). *Augmented BNF for syntax specifications: ABNF* (RFC 5234). RFC Editor. https://www.rfc-editor.org/rfc/rfc5234
+
+Eddy, W. (Ed.). (2022). *Transmission Control Protocol (TCP)* (RFC 9293). RFC Editor. https://www.rfc-editor.org/rfc/rfc9293
+
+Kyzivat, P. (2014). *Case-sensitive string support in ABNF* (RFC 7405). RFC Editor. https://www.rfc-editor.org/rfc/rfc7405
+
+Mockapetris, P. (1987a). *Domain names: Concepts and facilities* (RFC 1034). RFC Editor. https://www.rfc-editor.org/rfc/rfc1034
+
+Mockapetris, P. (1987b). *Domain names: Implementation and specification* (RFC 1035). RFC Editor. https://www.rfc-editor.org/rfc/rfc1035
+
+Postel, J. (1980). *User Datagram Protocol* (RFC 768). RFC Editor. https://www.rfc-editor.org/rfc/rfc768
+
+Postel, J. (1981). *Transmission Control Protocol* (RFC 793). RFC Editor. https://www.rfc-editor.org/rfc/rfc793
+
+Sermersheim, J. (Ed.). (2006). *Lightweight Directory Access Protocol (LDAP): The protocol* (RFC 4511). RFC Editor. https://www.rfc-editor.org/rfc/rfc4511
+
+Universidad EAFIT. (2026a). *Capa de aplicación: DNS, HTTP, SMTP, LDAP y NFS* [Material de curso]. ST0255 Telemática: Internet, Arquitectura y Protocolos.
+
+Universidad EAFIT. (2026b). *Capa de transporte* [Material de curso]. ST0255 Telemática: Internet, Arquitectura y Protocolos.
+
+Universidad EAFIT. (2026c). *Enunciado del proyecto "Sistema de monitoreo y control distribuido"* [Material de curso]. ST0255 Telemática: Internet, Arquitectura y Protocolos.
+
+Universidad EAFIT. (2026d). *Programación de sockets* [Material de curso]. ST0255 Telemática: Internet, Arquitectura y Protocolos.

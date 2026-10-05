@@ -20,6 +20,12 @@ La idea es construir un sistema donde varios nodos reportan su estado a un servi
 - [Matriz de trazabilidad](docs/entrega1/trazabilidad.md)
 - [Guion de exposición](docs/entrega1/exposicion.md)
 
+Validación local de los ejemplos del protocolo:
+
+```bash
+python3 tools/validar_ejemplos.py
+```
+
 ## Autor
 
 Emmanuel Hernández
