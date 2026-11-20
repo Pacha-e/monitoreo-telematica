@@ -1,0 +1,19 @@
+enable
+configure terminal
+hostname SW1
+vlan 10
+exit
+interface fastEthernet 0/1
+switchport mode access
+switchport access vlan 10
+exit
+interface fastEthernet 0/2
+switchport mode access
+switchport access vlan 10
+exit
+interface fastEthernet 0/3
+switchport mode access
+switchport access vlan 10
+exit
+exit
+write

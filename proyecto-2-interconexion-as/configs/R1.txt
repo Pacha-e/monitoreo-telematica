@@ -1,0 +1,26 @@
+enable
+configure terminal
+hostname R1
+interface gigabitEthernet 0/0
+ip address 192.168.12.1 255.255.255.252
+no shutdown
+exit
+interface gigabitEthernet 0/1
+ip address 192.168.13.1 255.255.255.252
+no shutdown
+exit
+interface gigabitEthernet 0/2
+ip address 10.0.0.1 255.255.255.0
+ip helper-address 192.168.100.2
+no shutdown
+exit
+router rip
+version 2
+no auto-summary
+network 10.0.0.0
+network 192.168.12.0
+network 192.168.13.0
+exit
+ip route 0.0.0.0 0.0.0.0 192.168.12.2
+exit
+write

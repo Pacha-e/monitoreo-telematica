@@ -1,0 +1,31 @@
+enable
+configure terminal
+hostname R3
+interface fastEthernet 0/0
+ip address 192.168.13.2 255.255.255.252
+no shutdown
+exit
+interface fastEthernet 0/1
+ip address 192.168.34.1 255.255.255.252
+no shutdown
+exit
+interface fastEthernet 1/0
+ip address 172.16.0.1 255.255.255.0
+ip helper-address 192.168.100.2
+no shutdown
+exit
+interface fastEthernet 1/1
+ip address 192.168.100.1 255.255.255.252
+no shutdown
+exit
+router rip
+version 2
+no auto-summary
+network 172.16.0.0
+network 192.168.13.0
+network 192.168.34.0
+network 192.168.100.0
+exit
+ip route 0.0.0.0 0.0.0.0 192.168.34.2
+exit
+write

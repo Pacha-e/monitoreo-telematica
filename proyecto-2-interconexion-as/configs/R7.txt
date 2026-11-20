@@ -1,0 +1,22 @@
+enable
+configure terminal
+hostname R7
+interface gigabitEthernet 0/0
+ip address 200.99.67.2 255.255.255.252
+no shutdown
+exit
+interface gigabitEthernet 0/1
+ip address 200.99.57.2 255.255.255.252
+no shutdown
+exit
+interface gigabitEthernet 0/2
+ip address 200.99.7.1 255.255.255.248
+no shutdown
+exit
+router ospf 99
+network 200.99.67.0 0.0.0.3 area 0
+network 200.99.57.0 0.0.0.3 area 0
+network 200.99.7.0 0.0.0.7 area 0
+exit
+exit
+write

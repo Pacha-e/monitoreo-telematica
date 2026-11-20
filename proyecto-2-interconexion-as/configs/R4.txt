@@ -1,0 +1,32 @@
+enable
+configure terminal
+hostname R4
+interface gigabitEthernet 0/0
+ip address 192.168.24.2 255.255.255.252
+ip nat inside
+no shutdown
+exit
+interface gigabitEthernet 0/1
+ip address 192.168.34.2 255.255.255.252
+ip nat inside
+no shutdown
+exit
+interface gigabitEthernet 0/2
+ip address 200.1.99.1 255.255.255.252
+ip nat outside
+no shutdown
+exit
+access-list 1 permit 10.0.0.0 0.0.0.255
+access-list 1 permit 172.16.0.0 0.0.0.255
+ip nat inside source list 1 interface gigabitEthernet 0/2 overload
+router rip
+version 2
+no auto-summary
+network 192.168.24.0
+network 192.168.34.0
+exit
+router bgp 1
+neighbor 200.1.99.2 remote-as 99
+exit
+exit
+write

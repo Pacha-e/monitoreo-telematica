@@ -1,0 +1,27 @@
+enable
+configure terminal
+hostname R6
+interface gigabitEthernet 0/0
+ip address 200.1.99.2 255.255.255.252
+no shutdown
+exit
+interface gigabitEthernet 0/1
+ip address 200.99.56.2 255.255.255.252
+no shutdown
+exit
+interface gigabitEthernet 0/2
+ip address 200.99.67.1 255.255.255.252
+no shutdown
+exit
+router ospf 99
+network 200.99.56.0 0.0.0.3 area 0
+network 200.99.67.0 0.0.0.3 area 0
+network 200.1.99.0 0.0.0.3 area 0
+exit
+router bgp 99
+neighbor 200.1.99.1 remote-as 1
+network 200.99.5.0 mask 255.255.255.248
+network 200.99.7.0 mask 255.255.255.248
+exit
+exit
+write
