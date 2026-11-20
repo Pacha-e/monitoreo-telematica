@@ -1,0 +1,254 @@
+# Datos del LDAP de laboratorio. Todas las claves son ficticias.
+dn: dc=monitoreo,dc=lab
+objectClass: top
+objectClass: dcObject
+objectClass: organization
+o: monitoreo
+dc: monitoreo
+
+dn: ou=people,dc=monitoreo,dc=lab
+objectClass: organizationalUnit
+ou: people
+
+dn: ou=groups,dc=monitoreo,dc=lab
+objectClass: organizationalUnit
+ou: groups
+
+dn: ou=devices,dc=monitoreo,dc=lab
+objectClass: organizationalUnit
+ou: devices
+
+dn: uid=admin1,ou=people,dc=monitoreo,dc=lab
+objectClass: inetOrgPerson
+uid: admin1
+cn: Administrador Uno
+sn: Uno
+userPassword: clave-admin-lab1
+
+dn: uid=operador1,ou=people,dc=monitoreo,dc=lab
+objectClass: inetOrgPerson
+uid: operador1
+cn: Operador Uno
+sn: Uno
+userPassword: clave-operador-lab1
+
+dn: uid=sinrol1,ou=people,dc=monitoreo,dc=lab
+objectClass: inetOrgPerson
+uid: sinrol1
+cn: Sin Rol Uno
+sn: Uno
+userPassword: clave-sinrol-lab1
+
+dn: cn=admins,ou=groups,dc=monitoreo,dc=lab
+objectClass: groupOfNames
+cn: admins
+member: uid=admin1,ou=people,dc=monitoreo,dc=lab
+
+dn: cn=operadores,ou=groups,dc=monitoreo,dc=lab
+objectClass: groupOfNames
+cn: operadores
+member: uid=operador1,ou=people,dc=monitoreo,dc=lab
+
+dn: cn=nodo-01,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-01
+userPassword: clave-nodo-01
+
+dn: cn=nodo-02,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-02
+userPassword: clave-nodo-02
+
+dn: cn=nodo-03,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-03
+userPassword: clave-nodo-03
+
+dn: cn=nodo-04,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-04
+userPassword: clave-nodo-04
+
+dn: cn=nodo-05,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-05
+userPassword: clave-nodo-05
+
+dn: cn=nodo-06,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-06
+userPassword: clave-nodo-06
+
+dn: cn=nodo-07,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-07
+userPassword: clave-nodo-07
+
+dn: cn=nodo-08,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-08
+userPassword: clave-nodo-08
+
+dn: cn=nodo-09,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-09
+userPassword: clave-nodo-09
+
+dn: cn=nodo-10,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-10
+userPassword: clave-nodo-10
+
+dn: cn=nodo-11,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-11
+userPassword: clave-nodo-11
+
+dn: cn=nodo-12,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-12
+userPassword: clave-nodo-12
+
+dn: cn=nodo-13,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-13
+userPassword: clave-nodo-13
+
+dn: cn=nodo-14,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-14
+userPassword: clave-nodo-14
+
+dn: cn=nodo-15,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-15
+userPassword: clave-nodo-15
+
+dn: cn=nodo-16,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-16
+userPassword: clave-nodo-16
+
+dn: cn=nodo-17,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-17
+userPassword: clave-nodo-17
+
+dn: cn=nodo-18,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-18
+userPassword: clave-nodo-18
+
+dn: cn=nodo-19,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-19
+userPassword: clave-nodo-19
+
+dn: cn=nodo-20,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-20
+userPassword: clave-nodo-20
+
+dn: cn=nodo-21,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-21
+userPassword: clave-nodo-21
+
+dn: cn=nodo-22,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-22
+userPassword: clave-nodo-22
+
+dn: cn=nodo-23,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-23
+userPassword: clave-nodo-23
+
+dn: cn=nodo-24,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-24
+userPassword: clave-nodo-24
+
+dn: cn=nodo-25,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-25
+userPassword: clave-nodo-25
+
+dn: cn=nodo-26,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-26
+userPassword: clave-nodo-26
+
+dn: cn=nodo-27,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-27
+userPassword: clave-nodo-27
+
+dn: cn=nodo-28,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-28
+userPassword: clave-nodo-28
+
+dn: cn=nodo-29,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-29
+userPassword: clave-nodo-29
+
+dn: cn=nodo-30,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-30
+userPassword: clave-nodo-30
+
+dn: cn=nodo-31,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-31
+userPassword: clave-nodo-31
+
+dn: cn=nodo-32,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-32
+userPassword: clave-nodo-32
+
+dn: cn=nodo-33,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-33
+userPassword: clave-nodo-33
+
+dn: cn=nodo-34,ou=devices,dc=monitoreo,dc=lab
+objectClass: device
+objectClass: simpleSecurityObject
+cn: nodo-34
+userPassword: clave-nodo-34

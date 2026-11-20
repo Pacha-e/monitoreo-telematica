@@ -1,0 +1,29 @@
+# Configuracion de slapd para el LDAP de laboratorio (sin root).
+# iniciar_ldap.sh sustituye @DIR@ por el directorio de trabajo.
+include /etc/ldap/schema/core.schema
+include /etc/ldap/schema/cosine.schema
+include /etc/ldap/schema/inetorgperson.schema
+
+pidfile   @DIR@/slapd.pid
+argsfile  @DIR@/slapd.args
+loglevel  0
+
+modulepath /usr/lib/ldap
+moduleload back_mdb
+
+database  mdb
+suffix    "dc=monitoreo,dc=lab"
+rootdn    "cn=admin,dc=monitoreo,dc=lab"
+rootpw    clave-root-lab
+directory @DIR@/db
+maxsize   10485760
+index     objectClass eq
+
+# Cada cuenta puede cambiar su clave; nadie mas la lee. El resto es legible
+# para que un usuario autenticado pueda buscar sus grupos.
+access to attrs=userPassword
+    by self write
+    by anonymous auth
+    by * none
+access to *
+    by * read
