@@ -6,9 +6,9 @@ Especificación del protocolo de aplicación del proyecto "Sistema de monitoreo 
 |---|---|
 | Curso | ST0255 Telemática, Universidad EAFIT, 2026-2 |
 | Autor | Emmanuel Hernández |
-| Versión del documento | 1.0, borrador de diseño (Fase 1) |
+| Versión del documento | 1.0 |
 | Fecha | 4 de octubre de 2026 |
-| Estado | Diseño. Nada de lo descrito aquí está implementado todavía. |
+| Estado | Implementado. Servidor en C (`servidor/`), nodos (`nodos/`) y cliente de administración (`cliente/`, biblioteca común en `mcd/`) en Python; pruebas automáticas en `pruebas/`. |
 
 La estructura sigue, a grandes rasgos, la del RFC 793 que sugiere el enunciado: visión general, especificación del servicio, formato de mensajes, reglas de procedimiento y ejemplos. La propuesta de la Fase 1 (`docs/entrega1/propuesta.md`) explica el porqué de las decisiones; este documento es la referencia para implementar. Si una persona distinta al autor quiere escribir un servidor, un nodo o un cliente compatible, esto es lo que debe leer.
 
@@ -620,9 +620,9 @@ La conexión TCP de un nodo no tiene temporizador de inactividad, porque los eve
 
 ## 9. Máquinas de estado
 
-Los diagramas están en `docs/diagramas/` (fuente Mermaid). Las tablas de esta sección son la versión normativa.
+Los diagramas están en `docs/diagramas/` (fuente Mermaid) y en el anexo de diagramas de la propuesta. Los diagramas largos se dividen en partes numeradas para que sean legibles a tamaño de página. Las tablas de esta sección son la versión normativa.
 
-### 9.1 Nodo (`fsm-nodo.mmd`)
+### 9.1 Nodo (`fsm-nodo-1.mmd`, `-2` y `-3`)
 
 | Estado | Evento | Acción | Siguiente |
 |---|---|---|---|
@@ -645,7 +645,7 @@ Los diagramas están en `docs/diagramas/` (fuente Mermaid). Las tablas de esta s
 | `OPERANDO` | Orden de apagado | Envía `BYE`, arranca `T_resp` | `CERRANDO` |
 | `CERRANDO` | `BYE` del servidor o vence `T_resp` | Cierra sockets | `FIN` |
 
-### 9.2 Nodo visto por el servidor (`fsm-servidor-nodo.mmd`)
+### 9.2 Nodo visto por el servidor (`fsm-servidor-nodo-1.mmd` y `-2`)
 
 | Estado | Evento | Acción | Siguiente |
 |---|---|---|---|
@@ -663,7 +663,7 @@ Los diagramas están en `docs/diagramas/` (fuente Mermaid). Las tablas de esta s
 | `DESCONECTADO` | `TELEMETRY` | 404 `SESION` (con límite) | `DESCONECTADO` |
 | `DESCONECTADO` | `REGISTER` válido y LDAP acepta | Sesión nueva, contadores en 0 | `ACTIVO` |
 
-### 9.3 Sesión de administración en el servidor (`fsm-sesion-admin.mmd`)
+### 9.3 Sesión de administración en el servidor (`fsm-sesion-admin-1.mmd` y `-2`)
 
 | Estado | Evento | Acción | Siguiente |
 |---|---|---|---|
@@ -686,7 +686,7 @@ Los diagramas están en `docs/diagramas/` (fuente Mermaid). Las tablas de esta s
 | `AUTENTICADA` | Vence `T_inactividad` | 408 `TIEMPO` | `CERRADA` |
 | Cualquiera | `recv()` = 0, error de socket o 413 | Libera la conexión | `CERRADA` |
 
-### 9.4 Cliente de administración (`fsm-cliente.mmd`)
+### 9.4 Cliente de administración (`fsm-cliente-1.mmd`, `-2` y `-3`)
 
 | Estado | Evento | Acción | Siguiente |
 |---|---|---|---|

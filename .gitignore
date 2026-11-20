@@ -24,3 +24,9 @@ Thumbs.db
 *.pem
 *.crt
 secrets/
+
+# Binarios del servidor
+servidor/obj/
+servidor/servidor
+servidor/servidor_asan
+.tmp/
