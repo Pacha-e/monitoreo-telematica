@@ -1,0 +1,5 @@
+flowchart LR
+    N1["Nodo 01"] -->|"TCP + UDP"| S["Servidor central<br/>C · puerto P"]
+    N2["Nodo 02"] -->|"TCP + UDP"| S
+    A["Cliente administrador"] -->|"TCP: acceso y consulta"| S
+    S -->|"valida identidad"| L["Directorio LDAP"]

@@ -1,0 +1,13 @@
+sequenceDiagram
+    autonumber
+    participant D as ns1 (BIND9)
+    participant S as servidor (C)
+    participant C as cliente
+
+    Note over S,D: caso 3, el DNS no resuelve el nombre del LDAP
+    C->>S: nueva conexión TCP al puerto P
+    C->>S: MCD/1.0|LOGIN|req=1|user=admin1<br/>password=clave-de-ejemplo
+    S->>D: consulta A de ldap.monitoreo.lab
+    D--xS: sin respuesta
+    S-->>C: MCD/1.0|ERROR|req=1|code=503|reason=DNS
+    Note over S: el proceso del servidor nunca termina

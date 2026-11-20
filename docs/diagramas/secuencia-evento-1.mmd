@@ -1,0 +1,10 @@
+sequenceDiagram
+    autonumber
+    participant N as nodo-01
+    participant S as servidor (hilo de la conexión)
+
+    Note over N,S: conexión TCP de control ya registrada
+    N->>S: MCD/1.0|EVENT|req=7|node_id=nodo-01<br/>msg_id=1791122400-7|ts=1791126146<br/>level=CRITICO|event=UMBRAL_TEMP
+    S->>S: msg_id nuevo, guarda el evento y lo loguea
+    S-->>N: MCD/1.0|ACK|req=7|node_id=nodo-01<br/>msg_id=1791122400-7|dup=0
+    Note over N: saca el evento de la cola

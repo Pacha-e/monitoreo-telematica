@@ -12,6 +12,8 @@ Universidad EAFIT, semestre 2026-2
 
 4 de octubre de 2026
 
+Repositorio del proyecto: https://github.com/Pacha-e/monitoreo-telematica
+
 ---
 
 ## Contenido
@@ -44,12 +46,12 @@ El enunciado pide que la propuesta inicial incluya ocho puntos y anuncia una exp
 | Punto literal del enunciado (Fase 1) | Dónde se responde |
 |---|---|
 | descripción general del problema | Sección 2 |
-| arquitectura propuesta | Sección 4 y `docs/diagramas/despliegue.mmd` |
+| arquitectura propuesta | Sección 4 y Anexo A, diagrama de despliegue |
 | entidades participantes | Sección 5 |
 | tipos de mensajes | Sección 6 y especificación, sección 5 |
 | sintaxis preliminar | Sección 7 y especificación, sección 4 |
 | reglas básicas de comunicación | Secciones 8 y 11 |
-| máquinas de estado | Sección 9 y los cuatro diagramas `fsm-*.mmd` |
+| máquinas de estado | Sección 9 y los diagramas `fsm-*.mmd` (Anexo A) |
 | análisis preliminar sobre el uso de TCP y UDP | Sección 10 |
 | exposición corta de unos cinco minutos | `docs/entrega1/exposicion.md` |
 
@@ -109,7 +111,7 @@ Esta entrega tiene un solo autor: Emmanuel Hernández. El plazo de la Fase 1 fue
 
 ### 4.1 Componentes
 
-El diagrama completo está en `docs/diagramas/despliegue.mmd`.
+El diagrama completo está en `docs/diagramas/despliegue.mmd` y se muestra en el Anexo A.
 
 ```
                        ns1.monitoreo.lab (BIND9)
@@ -179,11 +181,11 @@ En total son 15 tipos de mensaje. El detalle de campos de cada uno está en la e
 
 ### 6.2 Flujos
 
-1. Registro (`secuencia-registro.mmd`): el nodo resuelve el nombre del servidor, abre TCP y envía `REGISTER`. El servidor valida el `node_id` y el `secret` contra LDAP y contesta `REGISTER_OK` con un token de sesión.
-2. Telemetría (`secuencia-telemetria.mmd`): cada `period` segundos el nodo envía un datagrama `TELEMETRY` con el token de sesión y un número de secuencia. No hay respuesta.
-3. Evento (`secuencia-evento.mmd`): el nodo envía `EVENT` por su conexión TCP y espera `ACK`. Si no llega, se reconecta y lo reenvía con el mismo identificador; el servidor no lo duplica.
-4. Consulta (`secuencia-consulta.mmd`): el cliente envía `LOGIN`, el servidor verifica en LDAP y responde con el perfil. Después el cliente consulta cada 5 segundos.
-5. Errores (`secuencia-errores.mmd`) y servicios caídos (`secuencia-servicios-caidos.mmd`): cómo responde el servidor ante mensajes inválidos, temporizadores vencidos y fallas de DNS o LDAP.
+1. Registro (`secuencia-registro-1.mmd` y `-2`): el nodo resuelve el nombre del servidor, abre TCP y envía `REGISTER`. El servidor valida el `node_id` y el `secret` contra LDAP y contesta `REGISTER_OK` con un token de sesión.
+2. Telemetría (`secuencia-telemetria-1.mmd` y `-2`): cada `period` segundos el nodo envía un datagrama `TELEMETRY` con el token de sesión y un número de secuencia. No hay respuesta.
+3. Evento (`secuencia-evento-1.mmd` y `-2`): el nodo envía `EVENT` por su conexión TCP y espera `ACK`. Si no llega, se reconecta y lo reenvía con el mismo identificador; el servidor no lo duplica.
+4. Consulta (`secuencia-consulta-1.mmd` y `-2`): el cliente envía `LOGIN`, el servidor verifica en LDAP y responde con el perfil. Después el cliente consulta cada 5 segundos.
+5. Errores (`secuencia-errores-1.mmd` y `-2`) y servicios caídos (`secuencia-servicios-caidos-1.mmd` a `-4`): cómo responde el servidor ante mensajes inválidos, temporizadores vencidos y fallas de DNS o LDAP.
 
 ### 6.3 Por qué `RESPONSE` más `ITEM`
 
@@ -249,12 +251,12 @@ Las reglas completas, con algoritmos, están en la especificación, sección 7. 
 
 ## 9. Máquinas de estado
 
-Hay cuatro máquinas. Cada una tiene su diagrama en `docs/diagramas/` y su tabla de transiciones completa en la sección 9 de la especificación. Aquí resumo qué controla cada una:
+Hay cuatro máquinas. Cada una tiene su diagrama en `docs/diagramas/` y en el Anexo A y su tabla de transiciones completa en la sección 9 de la especificación. Aquí resumo qué controla cada una:
 
-- **Nodo (`fsm-nodo.mmd`)**: pasa por resolución DNS, conexión, registro y operación. Una falla lleva a `ESPERA_REINTENTO`; un evento espera su `ACK` sin detener la telemetría periódica.
-- **Nodo visto por el servidor (`fsm-servidor-nodo.mmd`)**: empieza como `DESCONOCIDO`, queda `ACTIVO` después de registrarse y pasa a `SIN_REPORTE` si pasan más de tres periodos sin telemetría. Un cierre TCP lo deja `DESCONECTADO`.
-- **Sesión administrativa (`fsm-sesion-admin.mmd`)**: exige `LOGIN`, limita los intentos y solo permite consultas después de autenticar el perfil en LDAP.
-- **Cliente de administración (`fsm-cliente.mmd`)**: obtiene credenciales, resuelve el servidor, inicia sesión, consulta y vuelve a conectarse si falla la red. Un 401 o 403 lo devuelve al formulario.
+- **Nodo (`fsm-nodo-1.mmd`, `-2` y `-3`)**: pasa por resolución DNS, conexión, registro y operación. Una falla lleva a `ESPERA_REINTENTO`; un evento espera su `ACK` sin detener la telemetría periódica.
+- **Nodo visto por el servidor (`fsm-servidor-nodo-1.mmd` y `-2`)**: empieza como `DESCONOCIDO`, queda `ACTIVO` después de registrarse y pasa a `SIN_REPORTE` si pasan más de tres periodos sin telemetría. Un cierre TCP lo deja `DESCONECTADO`.
+- **Sesión administrativa (`fsm-sesion-admin-1.mmd` y `-2`)**: exige `LOGIN`, limita los intentos y solo permite consultas después de autenticar el perfil en LDAP.
+- **Cliente de administración (`fsm-cliente-1.mmd`, `-2` y `-3`)**: obtiene credenciales, resuelve el servidor, inicia sesión, consulta y vuelve a conectarse si falla la red. Un 401 o 403 lo devuelve al formulario.
 
 Los diagramas muestran las transiciones; la especificación define de manera normativa el evento, la acción y el siguiente estado de cada una.
 

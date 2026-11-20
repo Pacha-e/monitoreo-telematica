@@ -1,0 +1,27 @@
+sequenceDiagram
+    autonumber
+    actor U as Operador
+    participant C as cliente (Tkinter)
+    participant D as ns1 (BIND9)
+    participant S as servidor (C)
+    participant L as ldap (OpenLDAP)
+
+    U->>C: escribe usuario y clave, pulsa Ingresar
+    C->>D: consulta A de servidor.monitoreo.lab
+    D-->>C: dirección del servidor
+    C->>S: connect TCP al puerto P
+    C->>S: MCD/1.0|LOGIN|req=1|user=operador1<br/>password=clave-de-ejemplo
+    S->>L: bind simple uid=operador1, ou=people
+    L-->>S: bind exitoso
+    S->>L: busca grupo con member igual al DN
+    L-->>S: cn=operadores
+    S-->>C: MCD/1.0|LOGIN_OK|req=1|user=operador1<br/>role=operador
+    C->>U: muestra perfil operador
+
+    loop cada 5 s
+        C->>S: MCD/1.0|LIST|req=2
+        S->>S: copia la tabla con el candado tomado y lo suelta
+        S-->>C: MCD/1.0|RESPONSE|req=2|op=LIST|items=2
+        S-->>C: MCD/1.0|ITEM|req=2|idx=1|node_id=nodo-01<br/>kind=SENSOR|state=ACTIVO
+        S-->>C: MCD/1.0|ITEM|req=2|idx=2|node_id=nodo-02<br/>kind=RED|state=SIN_REPORTE
+    end

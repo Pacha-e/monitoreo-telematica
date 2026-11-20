@@ -1,0 +1,18 @@
+sequenceDiagram
+    autonumber
+    participant N as nodo-02
+    participant D as ns1 (BIND9)
+    participant S as servidor (C)
+    participant L as ldap (OpenLDAP)
+    participant C as cliente
+
+    Note over N,D: caso 1, el DNS no responde al arrancar el nodo
+    N->>D: consulta A de servidor.monitoreo.lab
+    D--xN: sin respuesta
+    N->>N: EAI_AGAIN, registra, espera 1 s
+    N->>D: reintento
+    D--xN: sin respuesta
+    N->>N: registra, espera 2 s
+    N->>D: reintento
+    D-->>N: dirección del servidor
+    N->>S: connect TCP y REGISTER, flujo normal

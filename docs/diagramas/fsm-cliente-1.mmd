@@ -1,0 +1,9 @@
+stateDiagram-v2
+    direction LR
+    [*] --> INICIO
+    INICIO --> CREDENCIALES : abre la app
+    CREDENCIALES --> RESOLVIENDO : Ingresa
+    RESOLVIENDO --> CONECTANDO : DNS OK
+    RESOLVIENDO --> ESPERA_REINTENTO : falla DNS
+    CONECTANDO --> ESPERA_REINTENTO : falla connect
+    ESPERA_REINTENTO --> RESOLVIENDO : reintento

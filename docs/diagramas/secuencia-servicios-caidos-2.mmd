@@ -1,0 +1,18 @@
+sequenceDiagram
+    autonumber
+    participant D as ns1 (BIND9)
+    participant S as servidor (C)
+    participant L as ldap (OpenLDAP)
+    participant C as cliente
+
+    Note over S,L: caso 2, el LDAP está caído cuando llega un LOGIN
+    C->>S: MCD/1.0|LOGIN|req=1|user=admin1<br/>password=clave-de-ejemplo
+    S->>D: consulta A de ldap.monitoreo.lab
+    D-->>S: dirección del LDAP
+    S-xL: bind falla, conexión rechazada
+    S->>S: log SYS, LDAP en espera de 1 s
+    S-->>C: MCD/1.0|ERROR|req=1|code=503|reason=LDAP
+    Note over C: la conexión sigue abierta
+    C->>S: MCD/1.0|LOGIN|req=2|user=admin1<br/>password=clave-de-ejemplo
+    S->>S: dentro de la espera, no contacta al LDAP
+    S-->>C: MCD/1.0|ERROR|req=2|code=503|reason=LDAP

@@ -1,0 +1,14 @@
+stateDiagram-v2
+    direction LR
+    state "ACTIVO o SIN_REPORTE (viene de la parte 1)" as ACTIVO
+    [*] --> ACTIVO
+    ACTIVO --> DESCONECTADO : BYE o recv 0
+    DESCONECTADO --> DESCONECTADO : TELEMETRY
+    DESCONECTADO --> ACTIVO : REGISTER
+
+    note right of DESCONECTADO
+        La sesión queda inválida.
+        Historial y eventos se
+        conservan y LIST sigue
+        mostrando el nodo.
+    end note

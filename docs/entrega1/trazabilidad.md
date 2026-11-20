@@ -30,7 +30,7 @@ Columna "Estado":
 | F1.4 | "tipos de mensajes" | Exigido | P §6; E §5 | Este documento | Diseñado |
 | F1.5 | "sintaxis preliminar" | Exigido | P §7; E §4 | `tools/validar_ejemplos.py`: validación automatizada del formato, claves únicas y límite de 512 bytes | Diseñado |
 | F1.6 | "reglas básicas de comunicación" | Exigido | P §8 y §11; E §6 y §7 | Este documento | Diseñado |
-| F1.7 | "máquinas de estado" | Exigido | P §9; E §9; D:fsm-nodo, fsm-servidor-nodo, fsm-sesion-admin, fsm-cliente | Este documento | Diseñado |
+| F1.7 | "máquinas de estado" | Exigido | P §9; E §9; D:fsm-nodo-*, fsm-servidor-nodo-*, fsm-sesion-admin-*, fsm-cliente-* | Este documento | Diseñado |
 | F1.8 | "análisis preliminar sobre el uso de TCP y UDP" | Exigido | P §10 | Matriz de 9 criterios | Diseñado |
 | F1.9 | "exposición corta en clase ... aproximadamente cinco minutos" | Exigido si el grupo es seleccionado | `docs/entrega1/exposicion.md` | Ensayo cronometrado | Diseñado |
 
@@ -40,14 +40,14 @@ Columna "Estado":
 |---|---|---|---|---|---|
 | R1 | "al menos 2 nodos que reportan métricas, un servidor central y uno o varios clientes de administración" | Exigido | P §4, §5 | Demostración con `nodo-01`, `nodo-02` y un cliente | Diseñado, F2 |
 | R2 | "No hay comunicación directa entre nodos y clientes" | Exigido | P §4.2; E §2.2 | Solo el servidor escucha; captura Wireshark sin tráfico nodo-cliente | Diseñado, F2 |
-| R3a | "registrar los nodos que participan en el sistema" | Exigido | E §5.2, §7.2; D:secuencia-registro | Log de `REGISTER` y `REGISTER_OK` | Diseñado, F2 |
-| R3b | "recibir información periódica sobre su estado" | Exigido | E §5.4, §7.3; D:secuencia-telemetria | Captura UDP y log | Diseñado, F2 |
-| R3c | "recibir eventos generados por los nodos" | Exigido | E §5.5, §7.4; D:secuencia-evento | Log de `EVENT` y `ACK` | Diseñado, F2 |
-| R3d | "mantener información sobre el estado de los nodos conectados" | Exigido | E §7.3, §7.8, §9.2; D:fsm-servidor-nodo | Respuesta a `LIST` y `STATUS` con cambios de estado | Diseñado, F2 y F3 |
-| R3e | "responder consultas realizadas sobre la infraestructura" | Exigido | E §5.8, §5.9, §7.6; D:secuencia-consulta | Cliente mostrando respuestas | Diseñado, F2 |
+| R3a | "registrar los nodos que participan en el sistema" | Exigido | E §5.2, §7.2; D:secuencia-registro-1/-2 | Log de `REGISTER` y `REGISTER_OK` | Diseñado, F2 |
+| R3b | "recibir información periódica sobre su estado" | Exigido | E §5.4, §7.3; D:secuencia-telemetria-1/-2 | Captura UDP y log | Diseñado, F2 |
+| R3c | "recibir eventos generados por los nodos" | Exigido | E §5.5, §7.4; D:secuencia-evento-1/-2 | Log de `EVENT` y `ACK` | Diseñado, F2 |
+| R3d | "mantener información sobre el estado de los nodos conectados" | Exigido | E §7.3, §7.8, §9.2; D:fsm-servidor-nodo-* | Respuesta a `LIST` y `STATUS` con cambios de estado | Diseñado, F2 y F3 |
+| R3e | "responder consultas realizadas sobre la infraestructura" | Exigido | E §5.8, §5.9, §7.6; D:secuencia-consulta-1/-2 | Cliente mostrando respuestas | Diseñado, F2 |
 | R3f | "atender múltiples clientes de manera concurrente" | Exigido | P §14; E §10 | Prueba con varios clientes y nodos simultáneos | Diseñado, F3 |
 | R4a | "El código no puede tener direcciones IP codificadas. Debe resolver nombres de dominio" | Exigido | P §13; E §12 | Búsqueda de patrones de IP en el código con resultado vacío; configuración con FQDN | Diseñado, F2 |
-| R4b | "Si la resolución falla, el servicio debe manejar la excepción sin finalizar su ejecución" | Exigido | P §13; E §7.9, §12; D:secuencia-servicios-caidos | Prueba apagando BIND9 | Diseñado, F3 |
+| R4b | "Si la resolución falla, el servicio debe manejar la excepción sin finalizar su ejecución" | Exigido | P §13; E §7.9, §12; D:secuencia-servicios-caidos-1 a -4 | Prueba apagando BIND9 | Diseñado, F3 |
 | R5 | "interfaz de visualización sencilla ... estados instantáneos de los nodos y, al menos, 5 datos históricos" | Recomendado | P §5; E §5.8 (`HISTORY` hasta 10); E §9.4 | Captura de la ventana Tkinter | Diseñado, F2 |
 | R6a | "mecanismo de autenticación y gestión de perfiles de usuario" | Exigido | P §12; E §7.5 | Login con `admin` y con `operador`; 403 al operador en `EVENTS` | Diseñado, F2 y F3 |
 | R6b | "evitar implementar un sistema de usuarios basado únicamente en archivos locales o bases de datos propias" | Recomendado | P §12 (OpenLDAP) | LDIF de ejemplo sin claves en `infra/ldap/` | Diseñado; uso de `libldap` por confirmar |
@@ -125,12 +125,12 @@ Columna "Estado":
 | F3.2 | "estrategia de concurrencia ... justificar técnicamente su decisión" | Exigido | P §14 | | Diseñado |
 | F3.3 | "mensajes con formato incorrecto" | Exigido | P §11; E §6 (400, 413) | Pruebas con `nc` | Diseñado, F3 |
 | F3.4 | "parámetros inválidos" | Exigido | P §11; E §6 (422) | Pruebas con `nc` | Diseñado, F3 |
-| F3.5 | "desconexiones" | Exigido | E §7.7; D:fsm-servidor-nodo | Matar un nodo y un cliente | Diseñado, F3 |
-| F3.6 | "fallas en la comunicación" | Exigido | E §7.9; D:secuencia-servicios-caidos | Apagar servidor, DNS y LDAP | Diseñado, F3 |
+| F3.5 | "desconexiones" | Exigido | E §7.7; D:fsm-servidor-nodo-* | Matar un nodo y un cliente | Diseñado, F3 |
+| F3.6 | "fallas en la comunicación" | Exigido | E §7.9; D:secuencia-servicios-caidos-1 a -4 | Apagar servidor, DNS y LDAP | Diseñado, F3 |
 | F3.7 | "nodos desconocidos" | Exigido | E §6 (404 `NODO`, `SESION`) | Pruebas | Diseñado, F3 |
 | F3.8 | "expiración de temporizadores" | Exigido | E §8 | Pruebas de `T_ident`, `T_ack` y watchdog | Diseñado, F3 |
 | F3.9 | "pérdida de mensajes, cuando corresponda" | Exigido | E §7.3, §7.4 | Pérdida simulada (por ejemplo con `tc netem`) | Diseñado, F3 |
-| F3.10 | "duplicación de mensajes, cuando corresponda" | Exigido | E §7.3, §7.4; D:secuencia-evento | Reenvío forzado de un `EVENT` | Diseñado, F3 |
+| F3.10 | "duplicación de mensajes, cuando corresponda" | Exigido | E §7.3, §7.4; D:secuencia-evento-1/-2 | Reenvío forzado de un `EVENT` | Diseñado, F3 |
 | F3.11 | "El comportamiento esperado ante cada situación deberá estar definido tanto en la especificación del protocolo como en la implementación" | Exigido | E §6, §7, §8, §9 | Implementación coherente | Diseñado en especificación; implementación en F3 |
 
 ## 7. Evaluación y entrega

@@ -1,0 +1,14 @@
+stateDiagram-v2
+    direction LR
+    [*] --> INICIO
+    INICIO --> RESOLVIENDO : arranque
+    RESOLVIENDO --> CONECTANDO : DNS OK
+    RESOLVIENDO --> ESPERA_REINTENTO : falla DNS
+    CONECTANDO --> ESPERA_REINTENTO : falla connect
+    ESPERA_REINTENTO --> RESOLVIENDO : reintento
+
+    note right of ESPERA_REINTENTO
+        Espera creciente: 1, 2, 4, 8,
+        16 y 30 s. El proceso nunca
+        termina por una falla.
+    end note

@@ -1,0 +1,11 @@
+sequenceDiagram
+    autonumber
+    participant N as nodo-01
+    participant S as servidor (hilo UDP)
+    participant W as servidor (watchdog)
+
+    Note over N,S: el nodo deja de reportar
+    W->>W: cada 1 s compara ahora menos last_seen con 3 periodos
+    W->>W: pasan 15 s, SIN_REPORTE, evento CONECTIVIDAD
+    N->>S: TELEMETRY seq=46
+    S->>S: acepta, ACTIVO, evento RECUPERADO

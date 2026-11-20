@@ -1,0 +1,12 @@
+sequenceDiagram
+    autonumber
+    participant S as servidor (C)
+    participant L as ldap (OpenLDAP)
+    participant C as cliente
+
+    Note over S,L: el LDAP vuelve
+    C->>S: MCD/1.0|LOGIN|req=3|user=admin1<br/>password=clave-de-ejemplo
+    S->>L: bind simple
+    L-->>S: bind exitoso
+    S->>S: espera de LDAP vuelve a 1 s
+    S-->>C: MCD/1.0|LOGIN_OK|req=3|user=admin1|role=admin

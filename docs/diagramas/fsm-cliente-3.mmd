@@ -1,0 +1,10 @@
+stateDiagram-v2
+    direction LR
+    [*] --> LISTO
+    LISTO --> ESPERANDO_RESPUESTA : refresco 5 s
+    ESPERANDO_RESPUESTA --> LISTO : RESPONSE
+    ESPERANDO_RESPUESTA --> LISTO : 403, 404 o 422
+    ESPERANDO_RESPUESTA --> ESPERA_REINTENTO : T_resp, 408 o 500
+    ESPERA_REINTENTO --> RESOLVIENDO : reintento
+    LISTO --> FIN : cierra
+    FIN --> [*]

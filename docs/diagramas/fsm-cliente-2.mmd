@@ -1,0 +1,15 @@
+stateDiagram-v2
+    direction LR
+    state "RESOLVIENDO o CONECTANDO (viene de la parte 1)" as RESOLVIENDO
+    [*] --> RESOLVIENDO
+    RESOLVIENDO --> AUTENTICANDO : LOGIN
+    AUTENTICANDO --> LISTO : LOGIN_OK
+    AUTENTICANDO --> CREDENCIALES : 401 o 403
+    AUTENTICANDO --> ESPERA_REINTENTO : 503 o T_resp
+    ESPERA_REINTENTO --> RESOLVIENDO : reintento
+
+    note right of LISTO
+        Muestra el perfil y
+        habilita las vistas
+        de su rol.
+    end note

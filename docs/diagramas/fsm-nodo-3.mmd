@@ -1,0 +1,15 @@
+stateDiagram-v2
+    direction LR
+    [*] --> OPERANDO
+    OPERANDO --> OPERANDO : vence period
+    OPERANDO --> ESPERANDO_ACK : hay evento
+    ESPERANDO_ACK --> ESPERANDO_ACK : vence period
+    ESPERANDO_ACK --> OPERANDO : ACK
+    ESPERANDO_ACK --> OPERANDO : ERROR 4xx
+    ESPERANDO_ACK --> ESPERA_REINTENTO : T_ack o cae
+    OPERANDO --> RESOLVIENDO : 404 por UDP
+    ESPERANDO_ACK --> RESOLVIENDO : 404 por UDP
+    OPERANDO --> ESPERA_REINTENTO : cae TCP
+    OPERANDO --> CERRANDO : apagado
+    CERRANDO --> FIN : BYE
+    FIN --> [*]

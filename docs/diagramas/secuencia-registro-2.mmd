@@ -1,0 +1,13 @@
+sequenceDiagram
+    autonumber
+    participant N as nodo-01 (Python)
+    participant S as servidor (C)
+    participant L as ldap (OpenLDAP)
+
+    N->>S: connect TCP al puerto P
+    N->>S: MCD/1.0|REGISTER|req=1|node_id=nodo-01<br/>secret=clave-de-ejemplo|kind=SENSOR<br/>period=5
+    S->>L: bind simple cn=nodo-01, ou=devices
+    L-->>S: invalidCredentials
+    S-->>N: MCD/1.0|ERROR|req=1|code=401|reason=CREDENCIALES
+    S->>S: cierra la conexión
+    Note over N: ESPERA_REINTENTO con backoff, el proceso sigue vivo

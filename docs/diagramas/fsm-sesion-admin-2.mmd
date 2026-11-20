@@ -1,0 +1,17 @@
+stateDiagram-v2
+    direction LR
+    state "AUTENTICADA (viene de la parte 1)" as AUTENTICADA
+    [*] --> AUTENTICADA
+    AUTENTICADA --> AUTENTICADA : consulta permitida
+    AUTENTICADA --> AUTENTICADA : 403 o 409
+    AUTENTICADA --> CERRADA : BYE
+    AUTENTICADA --> CERRADA : T_inactividad
+    AUTENTICADA --> CERRADA : recv 0 o 413
+    CERRADA --> [*]
+
+    note right of AUTENTICADA
+        operador: LIST, STATUS, HISTORY
+        admin: también EVENTS
+        T_inactividad: 5 min sin
+        peticiones.
+    end note

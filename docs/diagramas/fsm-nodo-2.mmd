@@ -1,0 +1,13 @@
+stateDiagram-v2
+    direction LR
+    state "CONECTANDO (viene de la parte 1)" as CONECTANDO
+    [*] --> CONECTANDO
+    CONECTANDO --> REGISTRANDO : REGISTER
+    REGISTRANDO --> OPERANDO : REGISTER_OK
+    REGISTRANDO --> ESPERA_REINTENTO : ERROR o T_resp
+    ESPERA_REINTENTO --> RESOLVIENDO : reintento
+
+    note right of OPERANDO
+        Guarda la session, deja seq
+        en 0 y el backoff en 1 s.
+    end note

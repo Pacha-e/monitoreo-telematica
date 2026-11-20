@@ -1,0 +1,22 @@
+sequenceDiagram
+    autonumber
+    actor U as Operador
+    participant C as cliente (Tkinter)
+    participant S as servidor (C)
+
+    U->>C: abre el historial de nodo-01
+    C->>S: MCD/1.0|HISTORY|req=3|node_id=nodo-01|n=5
+    S-->>C: MCD/1.0|RESPONSE|req=3|op=HISTORY|items=5
+    S-->>C: MCD/1.0|ITEM|req=3|idx=1|node_id=nodo-01<br/>seq=45|ts=1791126151|cpu=39.0
+    Note over S,C: siguen ITEM idx=2 a idx=5, del más reciente al más antiguo
+    C->>U: tabla con 5 muestras
+
+    U->>C: abre la vista de eventos
+    C->>S: MCD/1.0|EVENTS|req=4|n=10
+    S-->>C: MCD/1.0|ERROR|req=4|code=403|reason=ROL
+    C->>U: su perfil no permite ver eventos
+
+    U->>C: cierra la ventana
+    C->>S: MCD/1.0|BYE|req=5
+    S-->>C: MCD/1.0|BYE|req=5
+    S->>S: cierra la conexión y termina el hilo

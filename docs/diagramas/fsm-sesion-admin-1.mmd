@@ -1,0 +1,14 @@
+stateDiagram-v2
+    direction LR
+    [*] --> CONECTADA : accept
+    [*] --> CERRADA : 64 abiertas
+    CONECTADA --> VALIDANDO : LOGIN
+    CONECTADA --> CONEXION_DE_NODO : REGISTER
+    CONECTADA --> CONECTADA : 401, 400 o 422
+    CONECTADA --> CERRADA : T_ident o BYE
+    VALIDANDO --> AUTENTICADA : LDAP acepta
+    VALIDANDO --> CONECTADA : 401 o 403
+    VALIDANDO --> CONECTADA : 503
+    VALIDANDO --> CERRADA : tercer fallo
+    CERRADA --> [*]
+    CONEXION_DE_NODO --> [*]

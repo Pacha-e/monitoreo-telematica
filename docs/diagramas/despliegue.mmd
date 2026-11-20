@@ -1,23 +1,22 @@
-flowchart LR
-    subgraph LAB["Red de laboratorio VirtualBox, zona DNS monitoreo.lab"]
-        direction LR
-        subgraph INFRA["Servicios de apoyo"]
-            NS1["ns1.monitoreo.lab<br/>BIND9<br/>53 UDP y TCP"]
-            LDAP["ldap.monitoreo.lab<br/>OpenLDAP slapd<br/>389 TCP<br/>dc=monitoreo,dc=lab"]
-        end
-        SRV["servidor.monitoreo.lab<br/>Servidor central en C<br/>sockets Berkeley y pthread<br/>puerto P en TCP y en UDP<br/>./servidor P archivoDeLogs"]
-        N1["nodo-01<br/>Python<br/>simula CPU, temperatura,<br/>batería y estado"]
-        N2["nodo-02<br/>Python"]
-        ADM["Cliente de administración<br/>Python y Tkinter"]
+flowchart TB
+    classDef nota fill:#ffffff,stroke:#000000,stroke-dasharray: 5 4;
+
+    subgraph RED["Red de laboratorio VirtualBox, zona DNS monitoreo.lab"]
+        direction TB
+        NS1["ns1.monitoreo.lab<br/>BIND9<br/>puerto 53"]
+        N1["nodo-01, Python<br/>TELEMETRY por UDP<br/>REGISTER y EVENT por TCP"]
+        N2["nodo-02, Python<br/>igual que nodo-01"]
+        SRV["servidor.monitoreo.lab<br/>C, sockets Berkeley, pthread<br/>puerto P en TCP y UDP"]
+        ADM["cliente de administración<br/>Python y Tkinter<br/>LOGIN y consultas por TCP"]
+        LDAP["ldap.monitoreo.lab<br/>OpenLDAP<br/>puerto 389 TCP"]
+        NOTA["Todos se localizan consultando el DNS ns1.<br/>Ningún código guarda direcciones IP.<br/>Las claves de ejemplo no son reales."]
+
+        N1 -->|TCP| SRV
+        N1 -.->|UDP| SRV
+        N2 -->|TCP| SRV
+        N2 -.->|UDP| SRV
+        ADM -->|TCP| SRV
+        SRV -->|TCP 389| LDAP
     end
 
-    N1 -->|"TCP P: REGISTER, EVENT, BYE"| SRV
-    N1 -.->|"UDP P: TELEMETRY"| SRV
-    N2 -->|"TCP P: REGISTER, EVENT, BYE"| SRV
-    N2 -.->|"UDP P: TELEMETRY"| SRV
-    ADM -->|"TCP P: LOGIN, LIST, STATUS, HISTORY, EVENTS, BYE"| SRV
-    SRV -->|"LDAP bind y búsqueda de grupos"| LDAP
-    N1 -.->|"DNS: servidor.monitoreo.lab"| NS1
-    N2 -.->|"DNS: servidor.monitoreo.lab"| NS1
-    ADM -.->|"DNS: servidor.monitoreo.lab"| NS1
-    SRV -.->|"DNS: ldap.monitoreo.lab"| NS1
+    class NOTA nota

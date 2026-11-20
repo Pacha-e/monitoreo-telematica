@@ -1,0 +1,17 @@
+sequenceDiagram
+    autonumber
+    participant C as cliente de prueba (nc)
+    participant S as servidor
+
+    C->>S: connect TCP al puerto P
+    C->>S: MCD/1.0|LIST|req=1
+    S-->>C: MCD/1.0|ERROR|req=1|code=401<br/>reason=SIN_SESION
+    C->>S: MCD/1.0 LIST req=2
+    S-->>C: MCD/1.0|ERROR|req=0|code=400<br/>reason=FORMATO
+    C->>S: MCD/1.0|LOGIN|req=3|user=admin1<br/>password=clave-de-ejemplo
+    S-->>C: MCD/1.0|LOGIN_OK|req=3|user=admin1<br/>role=admin
+    C->>S: MCD/1.0|HISTORY|req=4|node_id=nodo-01<br/>n=50
+    S-->>C: MCD/1.0|ERROR|req=4|code=422<br/>reason=VALOR|field=n
+    C->>S: MCD/1.0|STATUS|req=5|node_id=nodo-99
+    S-->>C: MCD/1.0|ERROR|req=5|code=404|reason=NODO
+    Note over C,S: estos errores mantienen la conexión abierta
